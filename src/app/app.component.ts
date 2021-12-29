@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from "./Services/auth.service";
 import {CurrentUser} from "./Models/currentuser";
 import {Subscription} from "rxjs";
-import firebase from "firebase/compat";
 import {SecretSantaApiService} from "./Services/secret-santa-api.service";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,12 @@ export class AppComponent {
   currentUser: CurrentUser = new CurrentUser();
   $authSubscription: Subscription;
 
-  constructor(private auth: AuthService, private api: SecretSantaApiService) {
+  loginForm = this.formBuilder.group({
+    Username: '',
+    Password: ''
+  });
+
+  constructor(private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder) {
     this.$authSubscription = this.auth.user$.subscribe(user => {
       console.log(`Inside the AppComponent - The user is: ${user.displayName}`)
       this.currentUser = user
@@ -24,6 +30,27 @@ export class AppComponent {
 
   fetchGroups() {
     return this.api.fetchGroup();
+  }
+
+  async signIn(token: string) {
+    // const result = await this.auth.signIn(token)
+  }
+
+  handleSubmit() {
+    if (!this.loginForm.valid) {
+      console.error("This is invalid sorry")
+      return;
+    }
+
+    this.auth.signIn(this.loginForm);
+  }
+
+  getAllUsers() {
+    return this.auth.getAllUsers();
+  }
+
+  signOut() {
+    this.auth.doSignedOutUser()
   }
 
 }
