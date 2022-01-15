@@ -1,10 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthService} from "./Services/auth.service";
 import {CurrentUser} from "./Models/currentuser";
 import {Subscription} from "rxjs";
 import {SecretSantaApiService} from "./Services/secret-santa-api.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder} from "@angular/forms";
 
 @Component({
   selector: 'app-root',
@@ -36,13 +35,15 @@ export class AppComponent {
     // const result = await this.auth.signIn(token)
   }
 
-  handleSubmit() {
+  async handleSubmit() {
     if (!this.loginForm.valid) {
       console.error("This is invalid sorry")
       return;
     }
 
-    this.auth.signIn(this.loginForm);
+    // this.auth.signIn(this.loginForm);
+    const result = await this.auth.signInAnonymousUser()
+    console.log(result)
   }
 
   getAllUsers() {
@@ -50,7 +51,7 @@ export class AppComponent {
   }
 
   signOut() {
-    this.auth.doSignedOutUser()
+    this.auth.SignOutUser()
   }
 
 }
