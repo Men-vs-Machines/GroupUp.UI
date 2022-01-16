@@ -1,19 +1,19 @@
 import {Component} from '@angular/core';
 import {AuthService} from "./Services/auth.service";
 import {CurrentUser} from "./Models/currentuser";
-import {Subscription} from "rxjs";
+import {takeUntil} from "rxjs";
 import {SecretSantaApiService} from "./Services/secret-santa-api.service";
 import {FormBuilder} from "@angular/forms";
+import {Destroyable} from "./Utils/destroyable";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent extends Destroyable {
   title = 'SecretSanta.UI';
   currentUser: CurrentUser = new CurrentUser();
-  $authSubscription: Subscription;
 
   loginForm = this.formBuilder.group({
     Username: '',
@@ -21,10 +21,15 @@ export class AppComponent {
   });
 
   constructor(private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder) {
-    this.$authSubscription = this.auth.user$.subscribe(user => {
-      console.log(`Inside the AppComponent - The user is: ${user.displayName}`)
-      this.currentUser = user
-    })
+    super();
+    this.auth.user$
+      .pipe(
+        takeUntil(this.destroy$))
+      .subscribe(
+        user => {
+          console.log(`Inside the AppComponent - The user is: ${user.displayName}`)
+          this.currentUser = user
+        })
   }
 
   fetchGroups() {
@@ -36,11 +41,6 @@ export class AppComponent {
   }
 
   async handleSubmit() {
-    if (!this.loginForm.valid) {
-      console.error("This is invalid sorry")
-      return;
-    }
-
     // this.auth.signIn(this.loginForm);
     const result = await this.auth.signInAnonymousUser()
     console.log(result)

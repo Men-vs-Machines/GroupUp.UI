@@ -6,6 +6,8 @@ import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {FormGroup} from "@angular/forms";
 import {environment} from "../../environments/environment";
+import fbase from "firebase/compat";
+import User = fbase.User;
 
 
 @Injectable({
@@ -14,6 +16,7 @@ import {environment} from "../../environments/environment";
 export class AuthService {
   private _user$: BehaviorSubject<CurrentUser> = new BehaviorSubject<CurrentUser>(new CurrentUser());
   private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private user: User = null;
 
   get user$(): Observable<CurrentUser> {
     return this._user$.asObservable()
@@ -30,12 +33,14 @@ export class AuthService {
     });
   }
 
-  async configureAuthState(firebaseUser: firebase.User | null) {
+  async configureAuthState(firebaseUser: User | null) {
     if (firebaseUser) {
       firebaseUser.getIdToken().then((theToken) => {
         localStorage.setItem("jwt", theToken);
         this._token$.next(theToken);
         this._user$.next(firebaseUser);
+        this.user = firebaseUser;
+        console.log(firebaseUser)
       }, async () => {
         await this.SignOutUser();
       });
@@ -74,6 +79,12 @@ export class AuthService {
   }
 
   async getAllUsers() {
-    return this.httpclient.get(`${environment.secretSantaAPI}/Users`).subscribe(x => console.log(x));
+    return this.httpclient.get(`${environment.secretSantaAPI}/Groups`).subscribe(x => console.log(x));
+  }
+
+  async setCurrentUserName(displayName: string) {
+    const result = await this.user.updateProfile({
+      displayName: displayName
+    })
   }
 }
