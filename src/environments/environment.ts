@@ -14,7 +14,7 @@ export const environment = {
     measurementId: 'G-2JB8W1YJMH',
   },
   production: false,
-  secretSantaAPI: 'http://localhost:5000'
+  GroupUpAPI: 'http://localhost:5000'
 };
 
 /*

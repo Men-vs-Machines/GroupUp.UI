@@ -63,10 +63,6 @@ export class AuthService {
     return this.angularAuth.signOut();
   }
 
-  getToken(): string | null {
-    return localStorage.getItem("jwt");
-  }
-
   async emailSignIn(form: FormGroup) {
     const email = form.value['Username'] + '@example.com';
     const password = form.value['Password'];
@@ -79,12 +75,14 @@ export class AuthService {
   }
 
   async getAllUsers() {
-    return this.httpclient.get(`${environment.secretSantaAPI}/Groups`).subscribe(x => console.log(x));
+    return this.httpclient.get(`${environment.GroupUpAPI}/Groups`).subscribe(x => console.log(x));
   }
 
-  async setCurrentUserName(displayName: string) {
-    const result = await this.user.updateProfile({
-      displayName: displayName
+  async setCurrentUserName(loginForm: FormGroup) {
+    const username = loginForm['Username']
+    console.log(username)
+    await this.user.updateProfile({
+      displayName: username
     })
   }
 }

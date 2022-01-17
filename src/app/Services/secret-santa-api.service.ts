@@ -9,7 +9,7 @@ export class SecretSantaApiService {
   constructor(private client: HttpClient) { }
 
   async fetchGroup() {
-    const result = await this.client.get(`${environment.secretSantaAPI}/Groups`).subscribe(x => console.log(x))
+    const result = await this.client.get(`${environment.GroupUpAPI}/Groups`).subscribe(x => console.log(x))
     return result;
   }
 

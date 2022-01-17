@@ -12,12 +12,11 @@ import {Destroyable} from "./Utils/destroyable";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent extends Destroyable {
-  title = 'SecretSanta.UI';
+  title = 'GroupUp.UI';
   currentUser: CurrentUser = new CurrentUser();
 
   loginForm = this.formBuilder.group({
     Username: '',
-    Password: ''
   });
 
   constructor(private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder) {
@@ -41,9 +40,10 @@ export class AppComponent extends Destroyable {
   }
 
   async handleSubmit() {
-    // this.auth.signIn(this.loginForm);
-    const result = await this.auth.signInAnonymousUser()
-    console.log(result)
+    console.log(this.loginForm)
+    const result1 = await this.auth.setCurrentUserName(this.loginForm.value)
+    // const result = await this.auth.signInAnonymousUser()
+    console.log(result1)
   }
 
   getAllUsers() {

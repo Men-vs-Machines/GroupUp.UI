@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "target": "SecretSanta.UI",
-    "public": "dist/secret-santa.ui",
+    "target": "GroupUp.UI",
+    "public": "dist/group-up.ui",
     "ignore": [
       "**/.*"
     ],
