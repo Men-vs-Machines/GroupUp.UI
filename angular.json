@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "SecretSanta.UI:build:production"
+              "browserTarget": "GroupUp.UI:build:production"
             },
             "development": {
-              "browserTarget": "SecretSanta.UI:build:development"
+              "browserTarget": "GroupUp.UI:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "SecretSanta.UI:build"
+            "browserTarget": "GroupUp.UI:build"
           }
         },
         "test": {
@@ -109,7 +109,7 @@
           "options": {
             "prerender": false,
             "ssr": false,
-            "browserTarget": "SecretSanta.UI:build:production",
+            "browserTarget": "GroupUp.UI:build:production",
             "firebaseProject": "secretsantatest-4e7fc",
             "firebaseHostingSite": "secretsantatest-4e7fc"
           }
