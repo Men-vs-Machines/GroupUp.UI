@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 import {AuthService} from "./Services/auth.service";
 import {CurrentUser} from "./Models/currentuser";
-import {takeUntil} from "rxjs";
+import {BehaviorSubject, takeUntil} from "rxjs";
 import {SecretSantaApiService} from "./Services/secret-santa-api.service";
-import {FormBuilder} from "@angular/forms";
+import {FormBuilder, Validators} from "@angular/forms";
 import {Destroyable} from "./Utils/destroyable";
 
 @Component({
@@ -14,9 +14,10 @@ import {Destroyable} from "./Utils/destroyable";
 export class AppComponent extends Destroyable {
   title = 'GroupUp.UI';
   currentUser: CurrentUser = new CurrentUser();
+  signedIn = false;
 
   loginForm = this.formBuilder.group({
-    Username: '',
+    Username: [null, [Validators.required]],
   });
 
   constructor(private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder) {
@@ -25,33 +26,40 @@ export class AppComponent extends Destroyable {
       .pipe(
         takeUntil(this.destroy$))
       .subscribe(
-        user => {
-          console.log(`Inside the AppComponent - The user is: ${user.displayName}`)
-          this.currentUser = user
-        })
+        user => this.currentUser = user)
+
+    this.auth.isUserSignedIn
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(signedIn => this.signedIn = signedIn);
   }
 
   fetchGroups() {
     return this.api.fetchGroup();
   }
 
-  async signIn(token: string) {
-    // const result = await this.auth.signIn(token)
-  }
-
   async handleSubmit() {
-    console.log(this.loginForm)
-    const result1 = await this.auth.setCurrentUserName(this.loginForm.value)
-    // const result = await this.auth.signInAnonymousUser()
-    console.log(result1)
+    if (!this.loginForm.valid){
+      console.error("Invalid")
+      return;
+    }
+
+    if (!this.signedIn) {
+      await Promise.all([this.auth.signInAnonymousUser(), this.auth.setCurrentUserName(this.loginForm.value)])
+      return;
+    }
+
+    await this.auth.setCurrentUserName(this.loginForm.value);
+    console.log(this.currentUser)
   }
 
   getAllUsers() {
     return this.auth.getAllUsers();
   }
 
-  signOut() {
-    this.auth.SignOutUser()
+  async signOut() {
+    await this.auth.SignOutUser()
   }
 
 }

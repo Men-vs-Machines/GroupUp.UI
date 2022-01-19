@@ -1,33 +1,38 @@
 import {Injectable} from '@angular/core';
-import * as firebase from 'firebase/app/dist/auth';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {CurrentUser} from '../Models/currentuser';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {FormGroup} from "@angular/forms";
 import {environment} from "../../environments/environment";
-import fbase from "firebase/compat";
-import User = fbase.User;
+import Base from "firebase/compat";
+import User = Base.User;
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private _user$: BehaviorSubject<CurrentUser> = new BehaviorSubject<CurrentUser>(new CurrentUser());
-  private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private user: User = null;
 
+  private _isUserSignedIn$ = new BehaviorSubject<boolean>(false);
+  get isUserSignedIn() {
+    return this._isUserSignedIn$.asObservable();
+  }
+
+  private _user$: BehaviorSubject<CurrentUser> = new BehaviorSubject<CurrentUser>(new CurrentUser());
   get user$(): Observable<CurrentUser> {
     return this._user$.asObservable()
   }
 
+  private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   get token$(): Observable<string> {
     return this._token$.asObservable();
   }
 
   constructor(private angularAuth: AngularFireAuth, private httpclient: HttpClient) {
     this.angularAuth.authState.subscribe(async firebaseUser => {
+      this._isUserSignedIn$.next(!!firebaseUser);
       // @ts-ignore
       await this.configureAuthState(firebaseUser);
     });
@@ -35,6 +40,7 @@ export class AuthService {
 
   async configureAuthState(firebaseUser: User | null) {
     if (firebaseUser) {
+      console.log("we are signed in")
       firebaseUser.getIdToken().then((theToken) => {
         localStorage.setItem("jwt", theToken);
         this._token$.next(theToken);
@@ -42,9 +48,11 @@ export class AuthService {
         this.user = firebaseUser;
         console.log(firebaseUser)
       }, async () => {
+        console.log("signed out")
         await this.SignOutUser();
       });
     } else {
+      console.log("signed out")
       await this.SignOutUser();
     }
   }
@@ -63,13 +71,6 @@ export class AuthService {
     return this.angularAuth.signOut();
   }
 
-  async emailSignIn(form: FormGroup) {
-    const email = form.value['Username'] + '@example.com';
-    const password = form.value['Password'];
-    const result = await this.angularAuth.signInWithEmailAndPassword(email, password);
-    console.log(result);
-  }
-
   async signInAnonymousUser() {
     return await this.angularAuth.signInAnonymously();
   }
@@ -79,10 +80,9 @@ export class AuthService {
   }
 
   async setCurrentUserName(loginForm: FormGroup) {
-    const username = loginForm['Username']
-    console.log(username)
-    await this.user.updateProfile({
+    const username = loginForm['Username'];
+    return await this.user.updateProfile({
       displayName: username
-    })
+    });
   }
 }
