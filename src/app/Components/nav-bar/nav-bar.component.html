@@ -1,0 +1,7 @@
+<mat-toolbar color="primary">
+  <span>Group Up</span>
+  <span style="display: flex; flex-grow: 1"></span>
+  <ng-container *ngIf="(user$ | async) as User">
+    <span>Hello, {{User.displayName}}!</span>
+  </ng-container>
+</mat-toolbar>

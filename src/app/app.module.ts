@@ -12,24 +12,32 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AuthInterceptor} from "./Security/auth-interceptor";
+import { NavBarComponent } from './Components/nav-bar/nav-bar.component';
+import {MatToolbarModule} from "@angular/material/toolbar";
+import { HomeComponent } from './Screens/home/home.component';
+import { GroupCreationComponent } from './Components/group-creation/group-creation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavBarComponent,
+    HomeComponent,
+    GroupCreationComponent,
   ],
-  imports: [
-    BrowserModule,
-    MatButtonModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatFormFieldModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    HttpClientModule,
-    MatIconModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    FormsModule,
-  ],
+    imports: [
+        BrowserModule,
+        MatButtonModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatFormFieldModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        HttpClientModule,
+        MatIconModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+        MatToolbarModule,
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],

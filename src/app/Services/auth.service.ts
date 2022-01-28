@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {CurrentUser} from '../Models/currentuser';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {FormGroup} from "@angular/forms";
 import {environment} from "../../environments/environment";
-import Base from "firebase/compat";
-import User = Base.User;
+import Firebase from "firebase/compat";
+import User = Firebase.User;
 
 
 @Injectable({
@@ -15,13 +14,8 @@ import User = Base.User;
 export class AuthService {
   private user: User = null;
 
-  private _isUserSignedIn$ = new BehaviorSubject<boolean>(false);
-  get isUserSignedIn() {
-    return this._isUserSignedIn$.asObservable();
-  }
-
-  private _user$: BehaviorSubject<CurrentUser> = new BehaviorSubject<CurrentUser>(new CurrentUser());
-  get user$(): Observable<CurrentUser> {
+  private _user$: BehaviorSubject<User> = new BehaviorSubject<User>(null);
+  get user$(): Observable<User> {
     return this._user$.asObservable()
   }
 
@@ -32,7 +26,6 @@ export class AuthService {
 
   constructor(private angularAuth: AngularFireAuth, private httpclient: HttpClient) {
     this.angularAuth.authState.subscribe(async firebaseUser => {
-      this._isUserSignedIn$.next(!!firebaseUser);
       // @ts-ignore
       await this.configureAuthState(firebaseUser);
     });
@@ -58,12 +51,13 @@ export class AuthService {
   }
 
   async SignOutUser() {
-    let theUser = new CurrentUser();
-    theUser.displayName = null;
-    theUser.isSignedIn = false;
+    // Comment these out to see if we can just push a null value instead
+    // let theUser = new CurrentUser();
+    // theUser.displayName = null;
+    // theUser.isSignedIn = false;
     localStorage.removeItem("jwt");
     this._token$.next(null);
-    this._user$.next(theUser);
+    this._user$.next(null);
     await this.angularAuth.signOut()
   }
 
