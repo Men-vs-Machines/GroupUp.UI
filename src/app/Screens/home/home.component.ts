@@ -20,7 +20,6 @@ export class HomeComponent extends Destroyable implements OnInit {
     Username: [null, [Validators.required]],
   });
 
-
   constructor(private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder) {
     super();
   }
@@ -31,12 +30,6 @@ export class HomeComponent extends Destroyable implements OnInit {
         takeUntil(this.destroy$))
       .subscribe(
         user => this.currentUser = user)
-
-    this.auth.isUserSignedIn
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(signedIn => this.signedIn = signedIn);
   }
 
   fetchGroups() {
