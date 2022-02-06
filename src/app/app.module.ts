@@ -18,6 +18,7 @@ import { HomeComponent } from './Screens/home/home.component';
 import { GroupCreationComponent } from './Components/group-creation/group-creation.component';
 import { MatGridListModule } from "@angular/material/grid-list";
 import { PageNotFoundComponent } from './Components/page-not-found/page-not-found.component';
+import { MatCardModule } from "@angular/material/card";
 
 @NgModule({
   declarations: [
@@ -27,21 +28,22 @@ import { PageNotFoundComponent } from './Components/page-not-found/page-not-foun
     GroupCreationComponent,
     PageNotFoundComponent,
   ],
-  imports: [
-    BrowserModule,
-    MatButtonModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatFormFieldModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    HttpClientModule,
-    MatIconModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MatToolbarModule,
-    MatGridListModule,
-  ],
+    imports: [
+        BrowserModule,
+        MatButtonModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatFormFieldModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        HttpClientModule,
+        MatIconModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+        MatToolbarModule,
+        MatGridListModule,
+        MatCardModule,
+    ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
   ],
