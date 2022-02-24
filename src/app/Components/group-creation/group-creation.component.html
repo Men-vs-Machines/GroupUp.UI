@@ -1,1 +1,34 @@
-<p>group-creation works!</p>
+<div class="container">
+
+  <h1> Create a group </h1>
+
+  <form (keydown.enter)="$event.preventDefault()" (ngSubmit)="onSubmit()" [formGroup]="groupForm">
+
+    <p>
+      <mat-form-field appearance="outline">
+        <mat-label>Group Name</mat-label>
+        <input formControlName="GroupName" matInput placeholder="Choose a name" required="required">
+      </mat-form-field>
+    </p>
+
+    <div formArrayName="Users">
+      <h2>Add a Group Member</h2>
+      <button (click)="addQuantity()" color="primary" mat-raised-button>Add More</button>
+      <div *ngFor="let quantity of Users().controls; let i=index" [formGroupName]="i">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Group Member Name</mat-label>
+          <input formControlName="username" matInput placeholder="Who are they?" required="required">
+        </mat-form-field>
+
+        <button (click)="removeQuantity(i)" color="warn" mat-raised-button>Remove</button>
+      </div>
+    </div>
+
+    <button color="accent" mat-raised-button type="submit">Submit</button>
+
+  </form>
+
+  <br/>
+  {{this.groupForm.value | json}}
+</div>
