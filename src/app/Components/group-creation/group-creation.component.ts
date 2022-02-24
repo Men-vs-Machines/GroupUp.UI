@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup} from "@angular/forms";
 
 @Component({
@@ -6,7 +6,7 @@ import {FormArray, FormBuilder, FormGroup} from "@angular/forms";
   templateUrl: './group-creation.component.html',
   styleUrls: ['./group-creation.component.scss']
 })
-export class GroupCreationComponent {
+export class GroupCreationComponent implements OnInit {
   groupForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -17,21 +17,25 @@ export class GroupCreationComponent {
     });
   }
 
+  ngOnInit() {
+    this.addUser();
+  }
+
   Users(): FormArray {
     return this.groupForm.get("Users") as FormArray
   }
 
-  newQuantity(): FormGroup {
+  newUser(): FormGroup {
     return this.fb.group({
       username: ''
     })
   }
 
-  addQuantity() {
-    this.Users().push(this.newQuantity());
+  addUser() {
+    this.Users().push(this.newUser());
   }
 
-  removeQuantity(i: number) {
+  removeUser(i: number) {
     this.Users().removeAt(i);
   }
 

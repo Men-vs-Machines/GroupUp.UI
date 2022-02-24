@@ -12,4 +12,8 @@ export class SecretSantaApiService {
     return this.client.get(`${environment.GroupUpAPI}/Groups`).subscribe(x => console.log(x));
   }
 
+  async postGroup(group: any) {
+    // return this.client.post()
+  }
+
 }
