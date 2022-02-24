@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup} from "@angular/forms";
+import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {SecretSantaApiService} from "../../Services/secret-santa-api.service";
+import {Group} from "../../Models/group";
 
 @Component({
   selector: 'app-group-creation',
@@ -9,10 +11,10 @@ import {FormArray, FormBuilder, FormGroup} from "@angular/forms";
 export class GroupCreationComponent implements OnInit {
   groupForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private secretSantaApi: SecretSantaApiService) {
 
     this.groupForm = this.fb.group({
-      GroupName: '',
+      Name: [null, [Validators.required]],
       Users: this.fb.array([]),
     });
   }
@@ -27,7 +29,7 @@ export class GroupCreationComponent implements OnInit {
 
   newUser(): FormGroup {
     return this.fb.group({
-      username: ''
+      username: [null, [Validators.required]]
     })
   }
 
@@ -39,7 +41,8 @@ export class GroupCreationComponent implements OnInit {
     this.Users().removeAt(i);
   }
 
-  onSubmit() {
-    console.log(this.groupForm.value);
+  async onSubmit(group: FormGroup) {
+    // console.log(group.value as Group);
+    await this.secretSantaApi.postGroup(group.value as Group);
   }
 }

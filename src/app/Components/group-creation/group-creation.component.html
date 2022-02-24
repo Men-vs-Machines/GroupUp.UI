@@ -2,12 +2,12 @@
 
   <h1> Create a group </h1>
 
-  <form (keydown.enter)="$event.preventDefault()" (ngSubmit)="onSubmit()" [formGroup]="groupForm">
+  <form (keydown.enter)="$event.preventDefault()" (ngSubmit)="onSubmit(this.groupForm)" [formGroup]="groupForm">
 
     <p>
       <mat-form-field appearance="outline">
         <mat-label>Group Name</mat-label>
-        <input formControlName="GroupName" matInput placeholder="Choose a name" required="required">
+        <input formControlName="Name" matInput placeholder="Choose a name" required="required">
       </mat-form-field>
     </p>
 
