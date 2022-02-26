@@ -19,6 +19,8 @@ import { GroupCreationComponent } from './Components/group-creation/group-creati
 import { MatGridListModule } from "@angular/material/grid-list";
 import { PageNotFoundComponent } from './Components/page-not-found/page-not-found.component';
 import { MatCardModule } from "@angular/material/card";
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 
 @NgModule({
   declarations: [
@@ -39,6 +41,7 @@ import { MatCardModule } from "@angular/material/card";
         MatIconModule,
         MatInputModule,
         ReactiveFormsModule,
+        MatSnackBarModule,
         FormsModule,
         MatToolbarModule,
         MatGridListModule,

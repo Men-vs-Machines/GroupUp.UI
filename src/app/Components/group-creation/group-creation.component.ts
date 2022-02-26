@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {SecretSantaApiService} from "../../Services/secret-santa-api.service";
-import {Group} from "../../Models/group";
+import { Component, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { SecretSantaApiService } from "../../Services/secret-santa-api.service";
+import { Group } from "../../Models/group";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-group-creation',
@@ -11,7 +12,8 @@ import {Group} from "../../Models/group";
 export class GroupCreationComponent implements OnInit {
   groupForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private secretSantaApi: SecretSantaApiService) {
+  constructor(private fb: FormBuilder, private secretSantaApi: SecretSantaApiService,
+              private snackBar: MatSnackBar) {
 
     this.groupForm = this.fb.group({
       Name: [null, [Validators.required]],
@@ -29,7 +31,7 @@ export class GroupCreationComponent implements OnInit {
 
   newUser(): FormGroup {
     return this.fb.group({
-      username: [null, [Validators.required]]
+      DisplayName: [null, [Validators.required]]
     })
   }
 
@@ -42,7 +44,15 @@ export class GroupCreationComponent implements OnInit {
   }
 
   async onSubmit(group: FormGroup) {
-    // console.log(group.value as Group);
+    if (group.status !== 'VALID') {
+      this.snackBar.open(`Group Creation: ${group.status}`, 'Close', {
+        duration: 2500,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     await this.secretSantaApi.postGroup(group.value as Group);
   }
 }

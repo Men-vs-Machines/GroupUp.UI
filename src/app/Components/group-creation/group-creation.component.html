@@ -13,12 +13,12 @@
 
     <div formArrayName="Users">
       <h2>Add a Group Member</h2>
-      <button (click)="addUser()" color="primary" mat-raised-button>Add Member</button>
+      <button (click)="addUser()" type="button" color="primary" mat-raised-button>Add Member</button>
       <div *ngFor="let quantity of Users().controls; let i=index" [formGroupName]="i">
 
         <mat-form-field appearance="outline">
           <mat-label>Group Member Name</mat-label>
-          <input formControlName="username" matInput placeholder="Who are they?" required="required">
+          <input formControlName="DisplayName" matInput placeholder="Who are they?" required="required">
         </mat-form-field>
 
         <button (click)="removeUser(i)" color="warn" mat-raised-button>Remove</button>
