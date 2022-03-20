@@ -11,12 +11,15 @@ export class SecretSantaApiService {
   }
 
   async fetchGroup() {
-    return this.client.get(`${environment.GroupUpAPI}/Groups`).subscribe(x => console.log(x));
+    return this.client.get(`${SecretSantaApiService.constructUri()}/Groups`).subscribe(x => console.log(x));
   }
 
   async postGroup(group: Group) {
-    console.log(group);
-    return this.client.post(`${environment.GroupUpAPI}/Groups`, group)
+    return this.client.post(`${SecretSantaApiService.constructUri()}/Groups`, group)
       .subscribe(x => console.log(x))
+  }
+
+  private static constructUri(): string {
+    return environment.GroupUpAPI
   }
 }

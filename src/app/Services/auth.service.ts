@@ -2,20 +2,17 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
-import {FormGroup} from "@angular/forms";
-import {environment} from "../../environments/environment";
 import Firebase from "firebase/compat";
-import User = Firebase.User;
-
+import firebaseUser = Firebase.User;
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private user: User = null;
+  private user: firebaseUser = null;
 
-  private _user$: BehaviorSubject<User> = new BehaviorSubject<User>(null);
-  get user$(): Observable<User> {
+  private _user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(null);
+  get user$(): Observable<firebaseUser> {
     return this._user$.asObservable()
   }
 
@@ -27,18 +24,36 @@ export class AuthService {
   constructor(private angularAuth: AngularFireAuth, private httpclient: HttpClient) {
     this.angularAuth.authState.subscribe(async firebaseUser => {
       // @ts-ignore
+      this.user = firebaseUser
       await this.configureAuthState(firebaseUser);
     });
   }
 
-  async configureAuthState(firebaseUser: User | null) {
+  public async SignOutUser() {
+    localStorage.removeItem("jwt");
+    this._token$.next(null);
+    this._user$.next(null);
+    await this.angularAuth.signOut()
+  }
+
+  public async signInAnonymousUser() {
+    return await this.angularAuth.signInAnonymously();
+  }
+
+  public async setCurrentUserName(username: string, user: firebaseUser) {
+    return await user.updateProfile({
+      displayName: username
+    });
+  }
+
+  private async configureAuthState(firebaseUser: firebaseUser | null) {
     if (firebaseUser) {
       console.log("we are signed in")
       firebaseUser.getIdToken().then((theToken) => {
         localStorage.setItem("jwt", theToken);
+        this.user = firebaseUser;
         this._token$.next(theToken);
         this._user$.next(firebaseUser);
-        this.user = firebaseUser;
         console.log(firebaseUser)
       }, async () => {
         console.log("signed out")
@@ -48,35 +63,5 @@ export class AuthService {
       console.log("signed out")
       await this.SignOutUser();
     }
-  }
-
-  async SignOutUser() {
-    // Comment these out to see if we can just push a null value instead
-    // let theUser = new CurrentUser();
-    // theUser.displayName = null;
-    // theUser.isSignedIn = false;
-    localStorage.removeItem("jwt");
-    this._token$.next(null);
-    this._user$.next(null);
-    await this.angularAuth.signOut()
-  }
-
-  logout(): Promise<void> {
-    return this.angularAuth.signOut();
-  }
-
-  async signInAnonymousUser() {
-    return await this.angularAuth.signInAnonymously();
-  }
-
-  async getAllUsers() {
-    return this.httpclient.get(`${environment.GroupUpAPI}/Groups`).subscribe(x => console.log(x));
-  }
-
-  async setCurrentUserName(loginForm: FormGroup) {
-    const username = loginForm['Username'];
-    return await this.user.updateProfile({
-      displayName: username
-    });
   }
 }
