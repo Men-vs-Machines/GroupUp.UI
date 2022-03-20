@@ -1,10 +1,12 @@
 <mat-card>
-  <div class="mat-display-2 font-color-whitesmoke" style="margin-bottom: 2rem">Welcome to GroupUp</div>
-  <p class="mat-title font-color-whitesmoke">
+  <div class="mat-display-2" style="margin-bottom: 2rem">Welcome to GroupUp</div>
+  <p class="mat-title">
     A website dedicated to creating a group based name picker (think Secret Santa)
     without the need to make an account. No email, no third-party auth, no trackers, no BS!
   </p>
-  <button mat-raised-button color="primary">nice</button>
+
+  <p>Who are you?</p>
+  <button mat-raised-button color="primary" (click)="handleSubmit()">Who be you</button>
 </mat-card>
 
 <!--<div class="center">-->
@@ -18,5 +20,5 @@
 <!--</div>-->
 
 <!--<div class="center" style="margin-top: 100px; flex-direction: column">-->
-<!--  <button (click)="signOut()" color="primary" mat-raised-button style="margin-top: 50px">Delete Current User</button>-->
+<!--  <button (click)="signOut()" color="primary" mat-raised-button style="margin-top: 50px">Delete Current FirebaseUser</button>-->
 <!--</div>-->

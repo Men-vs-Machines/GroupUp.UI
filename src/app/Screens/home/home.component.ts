@@ -31,8 +31,7 @@ export class HomeComponent extends Destroyable implements OnInit {
     this.auth.user$
       .pipe(
         takeUntil(this.destroy$))
-      .subscribe(
-        user => this.currentUser = user);
+      .subscribe(user => this.currentUser = user);
 
     fromEvent(window, 'resize')
       .pipe(debounceTime(100))

@@ -1,20 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SecretSantaApiService } from "../../Services/secret-santa-api.service";
-import { Group } from "../../Models/group";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { AuthService } from "../../Services/auth.service";
+import { filter, takeUntil } from "rxjs";
+import { Destroyable } from "../../Utils/destroyable";
+import Firebase from "firebase/compat";
+import FirebaseUser = Firebase.User;
+import { Group } from "../../Models/group";
+import { User } from "../../Models/user";
 
 @Component({
   selector: 'app-group-creation',
   templateUrl: './group-creation.component.html',
   styleUrls: ['./group-creation.component.scss']
 })
-export class GroupCreationComponent implements OnInit {
+export class GroupCreationComponent extends Destroyable implements OnInit {
   groupForm: FormGroup;
+  user: FirebaseUser;
 
   constructor(private fb: FormBuilder, private secretSantaApi: SecretSantaApiService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar, private auth: AuthService) {
 
+    super();
     this.groupForm = this.fb.group({
       Name: [null, [Validators.required]],
       Users: this.fb.array([]),
@@ -23,6 +31,19 @@ export class GroupCreationComponent implements OnInit {
 
   ngOnInit() {
     this.addUser();
+
+    this.auth.user$
+      .pipe(
+        filter(user => !!user),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(user => {
+        this.user = user
+
+        this.fb.group({
+          DisplayName: [user.displayName]
+        })
+      });
   }
 
   Users(): FormArray {
@@ -53,6 +74,11 @@ export class GroupCreationComponent implements OnInit {
       return;
     }
 
-    await this.secretSantaApi.postGroup(group.value as Group);
+    const newGroup = new Group();
+    newGroup.Name = group.value.Name;
+
+    const users = group.value.Users as User[];
+
+    await this.secretSantaApi.postGroup(newGroup);
   }
 }
