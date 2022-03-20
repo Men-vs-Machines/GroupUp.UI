@@ -1,3 +1,3 @@
-###Fork and Clone Repo
+## Fork and Clone Repo
 
-###Use `npm i` to install packages
+#### Use `npm i` to install packages
