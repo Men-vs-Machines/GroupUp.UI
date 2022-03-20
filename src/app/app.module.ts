@@ -21,7 +21,6 @@ import { PageNotFoundComponent } from './Components/page-not-found/page-not-foun
 import { MatCardModule } from "@angular/material/card";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-
 @NgModule({
   declarations: [
     AppComponent,

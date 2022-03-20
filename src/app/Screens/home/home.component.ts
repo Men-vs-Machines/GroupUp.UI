@@ -6,6 +6,7 @@ import { CurrentUser } from "../../Models/currentuser";
 import { Destroyable } from "../../Utils/destroyable";
 import { BehaviorSubject, debounceTime, fromEvent, takeUntil } from "rxjs";
 import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
+import { SnackbarService } from "../../Services/snackbar.service";
 
 @Component({
   selector: 'app-home',
@@ -23,7 +24,7 @@ export class HomeComponent extends Destroyable implements OnInit {
   });
 
   constructor( private auth: AuthService, private api: SecretSantaApiService, private formBuilder: FormBuilder,
-               private breakPoints: BreakpointObserver ) {
+               private breakPoints: BreakpointObserver, private snackbarService: SnackbarService ) {
     super();
   }
 
@@ -76,7 +77,12 @@ export class HomeComponent extends Destroyable implements OnInit {
 
   async handleSubmit() {
     if (!this.loginForm.valid) {
-      console.error("Invalid")
+      this.snackbarService.open(`Group Creation: ${this.loginForm.status}`, 'Close', {
+        duration: 2500,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      })
+
       return;
     }
 
