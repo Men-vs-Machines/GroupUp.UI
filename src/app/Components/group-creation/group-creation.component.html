@@ -1,8 +1,7 @@
 <div class="container">
-
   <h1> Create a group </h1>
 
-  <form (keydown.enter)="$event.preventDefault()" (ngSubmit)="onSubmit(this.groupForm)" [formGroup]="groupForm">
+  <form (ngSubmit)="onSubmit(this.groupForm)" [formGroup]="groupForm" (keydown.enter)="$event.preventDefault()">
 
     <p>
       <mat-form-field appearance="outline">
@@ -12,19 +11,23 @@
     </p>
 
     <div formArrayName="Users">
+
       <h2>Add a Group Member</h2>
       <button (click)="addUser()" type="button" color="primary" mat-raised-button>Add Member</button>
+
       <div *ngFor="let quantity of Users().controls; let i=index" [formGroupName]="i">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Group Member Name</mat-label>
-          <input formControlName="DisplayName" matInput placeholder="Who are they?" required="required">
-        </mat-form-field>
+        <ng-container *ngIf="!quantity.value.hidden">
+          <mat-form-field appearance="outline">
+            <mat-label>Group Member Name</mat-label>
+            <input formControlName="displayName" matInput placeholder="Who are they?">
+          </mat-form-field>
+          <button (click)="removeUser(i)" color="warn" mat-raised-button>Remove</button>
+        </ng-container>
 
-        <button (click)="removeUser(i)" color="warn" mat-raised-button>Remove</button>
       </div>
-    </div>
 
+    </div>
     <button color="accent" mat-raised-button type="submit">Submit</button>
 
   </form>

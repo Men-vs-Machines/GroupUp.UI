@@ -5,10 +5,10 @@ import { AuthService } from "../../Services/auth.service";
 import { filter, takeUntil } from "rxjs";
 import { Destroyable } from "../../Utils/destroyable";
 import Firebase from "firebase/compat";
-import FirebaseUser = Firebase.User;
 import { Group } from "../../Models/group";
 import { User } from "../../Models/user";
 import { SnackbarService } from "../../Services/snackbar.service";
+import FirebaseUser = Firebase.User;
 
 @Component({
   selector: 'app-group-creation',
@@ -19,8 +19,8 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
   groupForm: FormGroup;
   user: FirebaseUser;
 
-  constructor(private fb: FormBuilder, private secretSantaApi: SecretSantaApiService, private auth: AuthService,
-              private snackbarService: SnackbarService) {
+  constructor( private fb: FormBuilder, private secretSantaApi: SecretSantaApiService, private auth: AuthService,
+               private snackbarService: SnackbarService ) {
 
     super();
     this.groupForm = this.fb.group({
@@ -40,19 +40,21 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
       .subscribe(user => {
         this.user = user
 
-        this.fb.group({
-          DisplayName: [user.displayName]
-        })
-      });
+        this.Users().push(
+          this.fb.group({
+            displayName: this.user.displayName,
+            hidden: true
+          }))
+      })
   }
 
   Users(): FormArray {
-    return this.groupForm.get("Users") as FormArray
+    return this.groupForm.get('Users') as FormArray;
   }
 
   newUser(): FormGroup {
     return this.fb.group({
-      DisplayName: [null, [Validators.required]]
+      displayName: ''
     })
   }
 
@@ -60,16 +62,16 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
     this.Users().push(this.newUser());
   }
 
-  removeUser(i: number) {
+  removeUser( i: number ) {
     this.Users().removeAt(i);
   }
 
-  async onSubmit(group: FormGroup) {
+  async onSubmit( group: FormGroup ) {
     if (group.status !== 'VALID') {
       this.snackbarService.open(`Group Creation: ${group.status}`, 'Close', {
-          duration: 2500,
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
+        duration: 2500,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
       })
       return;
     }
