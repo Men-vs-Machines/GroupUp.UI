@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SecretSantaApiService } from "../../Services/secret-santa-api.service";
 import { AuthService } from "../../Services/auth.service";
-import { filter, takeUntil } from "rxjs";
+import { filter, switchMap, takeUntil } from "rxjs";
 import { Destroyable } from "../../Utils/destroyable";
 import Firebase from "firebase/compat";
 import { Group } from "../../Models/group";
 import { User } from "../../Models/user";
 import { SnackbarService } from "../../Services/snackbar.service";
+import { Router } from "@angular/router";
 import FirebaseUser = Firebase.User;
 
 @Component({
@@ -18,14 +19,15 @@ import FirebaseUser = Firebase.User;
 export class GroupCreationComponent extends Destroyable implements OnInit {
   groupForm: FormGroup;
   user: FirebaseUser;
+  currentGroup: Group;
 
   constructor( private fb: FormBuilder, private secretSantaApi: SecretSantaApiService, private auth: AuthService,
-               private snackbarService: SnackbarService ) {
+               private snackbarService: SnackbarService, private router: Router ) {
 
     super();
     this.groupForm = this.fb.group({
-      Name: [null, [Validators.required]],
-      Users: this.fb.array([]),
+      name: [null, [Validators.required]],
+      users: this.fb.array([]),
     });
   }
 
@@ -49,7 +51,7 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
   }
 
   Users(): FormArray {
-    return this.groupForm.get('Users') as FormArray;
+    return this.groupForm.get('users') as FormArray;
   }
 
   newUser(): FormGroup {
@@ -76,11 +78,34 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
       return;
     }
 
-    const newGroup = new Group();
-    newGroup.Name = group.value.Name;
+    const newGroup = this.mapToGroup(group);
 
+    // Post as new Users
     const users = group.value.Users as User[];
 
-    await this.secretSantaApi.postGroup(newGroup);
+    await this.secretSantaApi
+      .postGroup(newGroup)
+      .pipe(
+        filter(group => !!group),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(group => {
+        this.currentGroup = group
+        console.log(this.currentGroup)
+      });
+
+    setTimeout(async() => {
+      if (this.currentGroup) {
+        console.log(this.currentGroup.id)
+        await this.router.navigate(['/group', this.currentGroup.id])
+      }
+    },1000)
+
+  }
+
+  private mapToGroup( group ) {
+    const newGroup = new Group();
+    newGroup.name = group.value.Name;
+    return newGroup;
   }
 }

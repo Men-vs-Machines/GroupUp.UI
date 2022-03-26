@@ -6,11 +6,11 @@
     <p>
       <mat-form-field appearance="outline">
         <mat-label>Group Name</mat-label>
-        <input formControlName="Name" matInput placeholder="Choose a name" required="required">
+        <input formControlName="name" matInput placeholder="Choose a name" required="required">
       </mat-form-field>
     </p>
 
-    <div formArrayName="Users">
+    <div formArrayName="users">
 
       <h2>Add a Group Member</h2>
       <button (click)="addUser()" type="button" color="primary" mat-raised-button>Add Member</button>

@@ -21,6 +21,7 @@ import { PageNotFoundComponent } from './Components/page-not-found/page-not-foun
 import { MatCardModule } from "@angular/material/card";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { GroupDisplayComponent } from './Components/group-display/group-display.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     HomeComponent,
     GroupCreationComponent,
     PageNotFoundComponent,
+    GroupDisplayComponent,
   ],
     imports: [
         BrowserModule,
