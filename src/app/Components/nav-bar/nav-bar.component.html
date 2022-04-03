@@ -2,24 +2,27 @@
   <span>Group Up</span>
   <span style="display: flex; flex-grow: 1"></span>
 
-  <ng-container *ngIf="(user$ | async) as User; else signIn">
-    <span>Hello, {{User.displayName}}!</span>
-    <button color="warn" mat-raised-button type="button" (click)="signOut()" style="margin-left: 1rem">Sign out</button>
+  <ng-container *ngIf="(dataState$ | async) as data">
+
+    <ng-container *ngIf="!data.value && !data.needsSignIn">
+      <mat-spinner color="accent" style="z-index: 100" diameter="50"></mat-spinner>
+    </ng-container>
+
+    <ng-container *ngIf="data.value">
+      <span>Hello, {{data.value.displayName}}!</span>
+      <button color="warn" mat-raised-button type="button" (click)="signOut()" style="margin-left: 1rem">Sign out</button>
+    </ng-container>
+
+    <ng-container *ngIf="data.needsSignIn">
+      <form (submit)="handleSubmit(this.loginForm)" [formGroup]="loginForm" (keydown.enter)="$event.preventDefault()">
+        <mat-form-field appearance="standard">
+          <mat-label>Username</mat-label>
+          <input formControlName="Username" matInput>
+        </mat-form-field>
+        <button color="accent" mat-raised-button type="submit" style="margin-left: 1rem">Who are you?</button>
+      </form>
+    </ng-container>
+
   </ng-container>
-
-<!--  <ng-container *ngIf="(loading$ | async) ;">-->
-<!--    <mat-spinner color="accent" style="z-index: 100" diameter="50"></mat-spinner>-->
-<!--  </ng-container>-->
-
-  <ng-template #signIn>
-    <form (submit)="handleSubmit(this.loginForm)" [formGroup]="loginForm" (keydown.enter)="$event.preventDefault()">
-      <mat-form-field appearance="standard">
-        <mat-label>Username</mat-label>
-        <input formControlName="Username" matInput>
-      </mat-form-field>
-      <button color="accent" mat-raised-button type="submit" style="margin-left: 1rem">Who are you?</button>
-    </form>
-  </ng-template>
-
 
 </mat-toolbar>

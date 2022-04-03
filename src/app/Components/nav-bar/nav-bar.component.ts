@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import {AuthService} from "../../Services/auth.service";
-import { BehaviorSubject, finalize, Observable } from "rxjs";
+import { AuthService } from "../../Services/auth.service";
+import { BehaviorSubject, combineLatest, finalize, map, Observable, startWith, tap } from "rxjs";
 import firebase from "firebase/compat";
-import firebaseUser = firebase.User;
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SnackbarService } from "../../Services/snackbar.service";
+import { UserLoadingState } from "../../Models/user-loading-state";
+import firebaseUser = firebase.User;
+import { User } from "../../Models/user";
+
 
 @Component({
   selector: 'app-nav-bar',
@@ -12,31 +15,26 @@ import { SnackbarService } from "../../Services/snackbar.service";
   styleUrls: ['./nav-bar.component.scss']
 })
 export class NavBarComponent implements OnInit {
-  public user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(null);
-
-  private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
-  get loading$(): Observable<boolean> {
-    return this._loading.asObservable();
-  }
-
   loginForm = this.formBuilder.group({
     Username: [null, [Validators.required]],
   });
 
-  constructor(private auth: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService) { }
+  public dataState$: Observable<UserLoadingState<firebaseUser>>;
+  public dataState2$: BehaviorSubject<UserLoadingState<firebaseUser>> =
+    new BehaviorSubject<UserLoadingState<firebase.User>>({isLoading:true})
 
-  ngOnInit(): void {
-    this.auth.user$
-      .pipe(
-        finalize(() => this._loading.next(false))
-      )
-      .subscribe(x => {
-        this._loading.next(true);
-        this.user$.next(x);
-      })
+  constructor( private auth: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService ) {
   }
 
-  async handleSubmit(form: FormGroup) {
+  ngOnInit(): void {
+   this.dataState$ = this.auth.user$
+      .pipe(
+        startWith(null),
+        map((value) => !!value ? ({needsSignIn: false, isLoading: false, value}) : ({needsSignIn: true, isLoading: false }))
+      );
+  }
+
+  async handleSubmit( form: FormGroup ) {
     if (!this.loginForm.valid) {
       this.snackbarService.open(`Group Creation: ${this.loginForm.status}`, 'Close', {
         duration: 2500,
