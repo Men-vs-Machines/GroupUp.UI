@@ -1,6 +1,7 @@
 import {User} from "./user";
 
 export class Group {
-  Name: string;
-  Users: User[];
+  id: string;
+  name: string;
+  users: User[];
 }

@@ -20,6 +20,8 @@ import { MatGridListModule } from "@angular/material/grid-list";
 import { PageNotFoundComponent } from './Components/page-not-found/page-not-found.component';
 import { MatCardModule } from "@angular/material/card";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { GroupDisplayComponent } from './Components/group-display/group-display.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     HomeComponent,
     GroupCreationComponent,
     PageNotFoundComponent,
+    GroupDisplayComponent,
   ],
     imports: [
         BrowserModule,
@@ -45,6 +48,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatToolbarModule,
         MatGridListModule,
         MatCardModule,
+        MatProgressSpinnerModule,
     ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
