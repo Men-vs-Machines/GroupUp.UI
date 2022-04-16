@@ -22,8 +22,8 @@ export class GroupUpApiService extends Destroyable{
       ));
   }
 
-  getGroup(id: string) {
-    return this.client.get(`${this.constructUri()}/Groups/${id}`).pipe(
+  getGroup(id: string): Observable<Group> {
+    return this.client.get<Group>(`${this.constructUri()}/Groups/${id}`).pipe(
       catchError(err => {
         console.error(err.error);
         return of(null)

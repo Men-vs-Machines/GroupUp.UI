@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { GroupUpApiService } from "../../Services/group-up-api.service";
 import { Destroyable } from "../../Utils/destroyable";
 import { filter, takeUntil } from "rxjs";
+import { Group } from "../../Models/group";
 
 @Component({
   selector: 'app-group-display',
@@ -10,6 +11,7 @@ import { filter, takeUntil } from "rxjs";
   styleUrls: ['./group-display.component.scss']
 })
 export class GroupDisplayComponent extends Destroyable implements OnInit {
+  currentGroup: Group;
 
   constructor(private _activatedRoute: ActivatedRoute, private _groupUpApiService: GroupUpApiService) {
     super();
@@ -22,7 +24,7 @@ export class GroupDisplayComponent extends Destroyable implements OnInit {
       .pipe(
         filter(group => !!group),
         takeUntil(this.destroy$)
-      ).subscribe(console.log.bind(this))
+      ).subscribe(x => this.currentGroup = x)
   }
 
 }
