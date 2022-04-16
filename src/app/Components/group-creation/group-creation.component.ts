@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { SecretSantaApiService } from "../../Services/secret-santa-api.service";
+import { GroupUpApiService } from "../../Services/group-up-api.service";
 import { AuthService } from "../../Services/auth.service";
-import { filter, switchMap, takeUntil } from "rxjs";
+import { filter, takeUntil } from "rxjs";
 import { Destroyable } from "../../Utils/destroyable";
 import Firebase from "firebase/compat";
 import { Group } from "../../Models/group";
@@ -21,7 +21,7 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
   user: FirebaseUser;
   currentGroup: Group;
 
-  constructor( private fb: FormBuilder, private secretSantaApi: SecretSantaApiService, private auth: AuthService,
+  constructor( private fb: FormBuilder, private secretSantaApi: GroupUpApiService, private auth: AuthService,
                private snackbarService: SnackbarService, private router: Router ) {
 
     super();
@@ -68,7 +68,7 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
     this.Users().removeAt(i);
   }
 
-  async onSubmit( group: FormGroup ) {
+  onSubmit( group: FormGroup ) {
     if (group.status !== 'VALID') {
       this.snackbarService.open(`Group Creation: ${group.status}`, 'Close', {
         duration: 2500,
@@ -83,29 +83,17 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
     // Post as new Users
     const users = group.value.Users as User[];
 
-    await this.secretSantaApi
+    this.secretSantaApi
       .postGroup(newGroup)
       .pipe(
         filter(group => !!group),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(group => {
-        this.currentGroup = group
-        console.log(this.currentGroup)
-      });
-
-    setTimeout(async() => {
-      if (this.currentGroup) {
-        console.log(this.currentGroup.id)
-        await this.router.navigate(['/group', this.currentGroup.id])
-      }
-    },1000)
-
+        takeUntil(this.destroy$))
+      .subscribe(group => this.router.navigate(['/group', group.id]));
   }
 
-  private mapToGroup( group ) {
+  private mapToGroup(group) {
     const newGroup = new Group();
-    newGroup.name = group.value.Name;
+    newGroup.name = group.value.name;
     return newGroup;
   }
 }

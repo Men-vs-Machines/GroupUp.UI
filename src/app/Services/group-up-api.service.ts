@@ -2,19 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { Group } from "../Models/group";
-import { BehaviorSubject, catchError, Observable, of } from "rxjs";
+import { catchError, Observable, of } from "rxjs";
 import { Destroyable } from "../Utils/destroyable";
 
 @Injectable({
   providedIn: 'root'
 })
-export class SecretSantaApiService extends Destroyable{
+export class GroupUpApiService extends Destroyable{
   constructor(private client: HttpClient) {
     super();
   }
 
-  fetchGroup(): Observable<Object> {
-    return this.client.get(`${SecretSantaApiService.constructUri()}/Groups`).pipe(
+  fetchGroups(): Observable<Object> {
+    return this.client.get(`${this.constructUri()}/Groups`).pipe(
       catchError(err => {
           console.error(err.error);
           return of(null)
@@ -22,11 +22,20 @@ export class SecretSantaApiService extends Destroyable{
       ));
   }
 
-  postGroup(group: Group): Observable<Group> {
-    return this.client.post<Group>(`${SecretSantaApiService.constructUri()}/Groups`, group);
+  getGroup(id: string) {
+    return this.client.get(`${this.constructUri()}/Groups/${id}`).pipe(
+      catchError(err => {
+        console.error(err.error);
+        return of(null)
+      })
+    )
   }
 
-  private static constructUri(): string {
+  postGroup(group: Group): Observable<Group> {
+    return this.client.post<Group>(`${this.constructUri()}/Groups`, group);
+  }
+
+  private constructUri(): string {
     return environment.GroupUpAPI
   }
 }

@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: 'index', component: HomeComponent },
   { path: 'not-found', component: PageNotFoundComponent },
   { path: 'group', component: GroupCreationComponent },
-  { path: 'group/:groupId', component: GroupDisplayComponent },
+  { path: 'group/:id', component: GroupDisplayComponent },
   { path: '**', redirectTo: '/not-found', pathMatch: 'full' }
 ];
 

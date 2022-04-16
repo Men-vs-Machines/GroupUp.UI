@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../Services/auth.service";
-import { BehaviorSubject, combineLatest, finalize, map, Observable, startWith, tap } from "rxjs";
+import { map, Observable, startWith } from "rxjs";
 import firebase from "firebase/compat";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SnackbarService } from "../../Services/snackbar.service";
 import { UserLoadingState } from "../../Models/user-loading-state";
 import firebaseUser = firebase.User;
-import { User } from "../../Models/user";
 
 
 @Component({
@@ -20,8 +19,6 @@ export class NavBarComponent implements OnInit {
   });
 
   public dataState$: Observable<UserLoadingState<firebaseUser>>;
-  public dataState2$: BehaviorSubject<UserLoadingState<firebaseUser>> =
-    new BehaviorSubject<UserLoadingState<firebase.User>>({isLoading:true})
 
   constructor( private auth: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService ) {
   }
