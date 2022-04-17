@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { GroupUpApiService } from "../../Services/group-up-api.service";
 import { AuthService } from "../../Services/auth.service";
-import { filter, takeUntil } from "rxjs";
+import { filter, map, takeUntil } from "rxjs";
 import { Destroyable } from "../../Utils/destroyable";
-import Firebase from "firebase/compat";
 import { Group } from "../../Models/group";
 import { User } from "../../Models/user";
 import { SnackbarService } from "../../Services/snackbar.service";
 import { Router } from "@angular/router";
-import FirebaseUser = Firebase.User;
+import { mapUserDto } from "../../Utils/user-dto";
 
 @Component({
   selector: 'app-group-creation',
@@ -18,7 +17,6 @@ import FirebaseUser = Firebase.User;
 })
 export class GroupCreationComponent extends Destroyable implements OnInit {
   groupForm: FormGroup;
-  user: FirebaseUser;
   currentGroup: Group;
 
   constructor( private fb: FormBuilder, private secretSantaApi: GroupUpApiService, private auth: AuthService,
@@ -37,14 +35,13 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
     this.auth.user$
       .pipe(
         filter(user => !!user),
+        map(user => mapUserDto(user)),
         takeUntil(this.destroy$)
       )
       .subscribe(user => {
-        this.user = user
-
         this.Users().push(
           this.fb.group({
-            displayName: this.user.displayName,
+            displayName: user.displayName,
             hidden: true
           }))
       })
@@ -81,14 +78,16 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
     const newGroup = this.mapToGroup(group);
 
     // Post as new Users
-    const users = group.value.Users as User[];
+    const users = group.value.users as User[];
+    console.log(users);
 
-    this.secretSantaApi
-      .postGroup(newGroup)
-      .pipe(
-        filter(group => !!group),
-        takeUntil(this.destroy$))
-      .subscribe(group => this.router.navigate(['/group', group.id]));
+    // this.secretSantaApi
+    //   .postGroup(newGroup)
+    //   .pipe(
+    //     filter(group => !!group),
+    //     map(group => group.id),
+    //     takeUntil(this.destroy$))
+    //   .subscribe(id => this.router.navigate(['/group', id]));
   }
 
   private mapToGroup(group) {

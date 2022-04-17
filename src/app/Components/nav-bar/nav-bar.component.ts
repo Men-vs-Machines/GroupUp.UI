@@ -44,7 +44,7 @@ export class NavBarComponent implements OnInit {
 
     const username = form.value.Username
     const { user } = await this.auth.signInAnonymousUser();
-    await this.auth.setCurrentUserName(username, user)
+    await this.auth.setCurrentUserName(username, user);
   }
 
   async signOut() {

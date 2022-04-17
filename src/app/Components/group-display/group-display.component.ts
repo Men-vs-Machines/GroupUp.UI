@@ -24,7 +24,10 @@ export class GroupDisplayComponent extends Destroyable implements OnInit {
       .pipe(
         filter(group => !!group),
         takeUntil(this.destroy$)
-      ).subscribe(x => this.currentGroup = x)
+      ).subscribe(x => {
+        console.log(x);
+        return this.currentGroup = x;
+    })
   }
 
 }

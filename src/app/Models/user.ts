@@ -1,5 +1,6 @@
 export class User {
-  Id: string;
-  DisplayName: string;
-  WishList?: string[];
+  id: string;
+  displayName: string;
+  wishList?: string[];
+  new?: boolean;
 }
