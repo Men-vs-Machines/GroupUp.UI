@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { GroupUpApiService } from "../../Services/group-up-api.service";
 import { AuthService } from "../../Services/auth.service";
-import { filter, map, takeUntil } from "rxjs";
+import { filter, map, takeUntil, tap } from "rxjs";
 import { Destroyable } from "../../Utils/destroyable";
 import { Group } from "../../Models/group";
 import { User } from "../../Models/user";
@@ -42,7 +42,8 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
         this.Users().push(
           this.fb.group({
             displayName: user.displayName,
-            hidden: true
+            hidden: true,
+            id: user.id,
           }))
       })
   }
@@ -79,20 +80,21 @@ export class GroupCreationComponent extends Destroyable implements OnInit {
 
     // Post as new Users
     const users = group.value.users as User[];
-    console.log(users);
 
-    // this.secretSantaApi
-    //   .postGroup(newGroup)
-    //   .pipe(
-    //     filter(group => !!group),
-    //     map(group => group.id),
-    //     takeUntil(this.destroy$))
-    //   .subscribe(id => this.router.navigate(['/group', id]));
+    this.secretSantaApi
+      .postGroup(newGroup)
+      .pipe(
+        filter(group => !!group),
+        tap(x => console.log(x)),
+        map(group => group.id),
+        takeUntil(this.destroy$))
+      .subscribe(id => this.router.navigate(['/group', id]));
   }
 
-  private mapToGroup(group) {
+  private mapToGroup( group ) {
     const newGroup = new Group();
     newGroup.name = group.value.name;
+    newGroup.users = group.value.users;
     return newGroup;
   }
 }

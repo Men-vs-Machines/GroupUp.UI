@@ -4,7 +4,6 @@ import { User } from "../Models/user";
 
 export const mapUserDto = (firebaseUser: firebaseUser): User => {
   const user = new User();
-  user.new = false;
   user.id = firebaseUser.uid;
   user.displayName = firebaseUser.displayName;
   return user;
