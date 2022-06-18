@@ -4,6 +4,7 @@ import { environment } from "../../environments/environment";
 import { Group } from "../Models/group";
 import { catchError, Observable, of } from "rxjs";
 import { Destroyable } from "../Utils/destroyable";
+import { User } from "../Models/user";
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,10 @@ export class GroupUpApiService extends Destroyable{
 
   postGroup(group: Group): Observable<Group> {
     return this.client.post<Group>(`${this.constructUri()}/Groups`, group);
+  }
+
+  postUser(user: User): Observable<User> {
+    return this.client.post<User>(`${this.constructUri()}/Users`, user)
   }
 
   private constructUri(): string {

@@ -4,4 +4,25 @@
     A website dedicated to creating a group based name picker (think Secret Santa)
     without the need to make an account. No email, no third-party auth, no trackers, no BS!
   </p>
+
+  <ng-container *ngIf="!(this.user$ | async)">
+
+    <form (ngSubmit)="onSubmit(this.signInForm)" [formGroup]="signInForm">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input formControlName="displayName" matInput required="required">
+      </mat-form-field>
+
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input formControlName="password" type="password" matInput required="required">
+      </mat-form-field>
+
+      <button mat-raised-button type="submit">Enter</button>
+    </form>
+  </ng-container>
+
+  <button color="accent" mat-raised-button type="submit" routerLink="/group">Create a group!</button>
 </mat-card>

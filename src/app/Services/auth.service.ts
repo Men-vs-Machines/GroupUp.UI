@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
 import firebaseUser = Firebase.User;
+import { User } from "../Models/user";
 
 @Injectable({
   providedIn: 'root'
@@ -40,12 +41,23 @@ export class AuthService {
     return await this.angularAuth.signInAnonymously();
   }
 
+  // displayName will be mapped to Email
+  public async createUserWithEmailAndPassword(user: User) {
+    return await this.angularAuth.createUserWithEmailAndPassword(user.displayName, user.password)
+  }
+
+  // displayName will be mapped to email
+  public async signInUserWithEmailAndPassword(user: User) {
+    return await this.angularAuth.signInWithEmailAndPassword(user.displayName, user.password);
+  }
+
   public async setCurrentUserName(username: string, user: firebaseUser) {
     return await user.updateProfile({
       displayName: username
     });
   }
 
+  // TODO: Add spinner service to block page while user is loading in
   private async configureAuthState(firebaseUser: firebaseUser | null) {
     if (firebaseUser) {
       console.log("we are signed in")
