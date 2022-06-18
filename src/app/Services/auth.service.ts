@@ -57,6 +57,7 @@ export class AuthService {
     });
   }
 
+  // TODO: Add spinner service to block page while user is loading in
   private async configureAuthState(firebaseUser: firebaseUser | null) {
     if (firebaseUser) {
       console.log("we are signed in")
