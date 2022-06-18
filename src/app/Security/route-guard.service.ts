@@ -13,7 +13,6 @@ export class RouteGuardService implements CanActivate {
 
   async canActivate(): Promise<boolean> {
       var isSignedIn = !!(await firstValueFrom(this.authService.token$));
-      console.log(isSignedIn);
       if (!isSignedIn) {
         this.router.navigate(['index']);
         return isSignedIn;
