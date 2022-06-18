@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Destroyable } from "../../Utils/destroyable";
 import { debounceTime, fromEvent } from "rxjs";
 import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
+import { GroupUpApiService } from "../../Services/group-up-api.service";
+import { User } from "../../Models/user";
 
 @Component({
   selector: 'app-home',
@@ -10,9 +15,15 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/l
 })
 export class HomeComponent extends Destroyable implements OnInit {
   columnSize: number;
+  signInForm: FormGroup;
 
-  constructor(private breakPoints: BreakpointObserver) {
+  constructor(private breakPoints: BreakpointObserver, private fb: FormBuilder, private httpClient: HttpClient, private apiService: GroupUpApiService) {
     super();
+
+    this.signInForm = this.fb.group({
+      displayName: [null, [Validators.required]],
+      password: [null, [Validators.required]]
+    })
   }
 
   ngOnInit(): void {
@@ -52,5 +63,10 @@ export class HomeComponent extends Destroyable implements OnInit {
         this.columnSize = 3;
       }
     });
+  }
+
+  public onSubmit(form: FormGroup) {
+    console.log(form.value as User);
+    this.apiService.postUser(form.value).subscribe(x => console.log(x));
   }
 }

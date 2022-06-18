@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
 import firebaseUser = Firebase.User;
+import { User } from "../Models/user";
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,16 @@ export class AuthService {
 
   public async signInAnonymousUser() {
     return await this.angularAuth.signInAnonymously();
+  }
+
+  // displayName will be mapped to Email
+  public async createUserWithEmailAndPassword(user: User) {
+    return await this.angularAuth.createUserWithEmailAndPassword(user.displayName, user.password)
+  }
+
+  // displayName will be mapped to email
+  public async signInUserWithEmailAndPassword(user: User) {
+    return await this.angularAuth.signInWithEmailAndPassword(user.displayName, user.password);
   }
 
   public async setCurrentUserName(username: string, user: firebaseUser) {
