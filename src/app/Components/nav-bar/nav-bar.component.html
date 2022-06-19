@@ -4,23 +4,9 @@
 
   <ng-container *ngIf="(dataState$ | async) as data">
 
-    <ng-container *ngIf="!data.value && !data.needsSignIn">
-      <mat-spinner color="accent" style="z-index: 100" diameter="50"></mat-spinner>
-    </ng-container>
-
     <ng-container *ngIf="data.value">
       <span>Hello, {{data.value.displayName}}!</span>
       <button color="warn" mat-raised-button type="button" (click)="signOut()" style="margin-left: 1rem">Sign out</button>
-    </ng-container>
-
-    <ng-container *ngIf="data.needsSignIn">
-      <form (submit)="handleSubmit(this.loginForm)" [formGroup]="loginForm" (keydown.enter)="$event.preventDefault()">
-        <mat-form-field appearance="standard">
-          <mat-label>Username</mat-label>
-          <input formControlName="Username" matInput>
-        </mat-form-field>
-        <button color="accent" mat-raised-button type="submit" style="margin-left: 1rem">Who are you?</button>
-      </form>
     </ng-container>
 
   </ng-container>

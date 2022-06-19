@@ -35,7 +35,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       )
       .subscribe((x) => {
         console.log(x);
-        return (this.currentGroup = x);
+        this.currentGroup = x;
       });
   }
 }

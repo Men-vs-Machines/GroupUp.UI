@@ -3,4 +3,5 @@ export class User {
   displayName: string;
   wishList?: string[];
   password: string;
+  email: string;
 }
