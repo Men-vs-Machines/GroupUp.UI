@@ -79,8 +79,7 @@ export class HomeComponent extends Destroyable implements OnInit {
       });
   }
 
-  public onSubmit(form: FormGroup) {
-    console.log(form.value as User);
-    this.apiService.postUser(form.value).subscribe((x) => console.log(x));
+  public async onSubmit(form: FormGroup) {
+    await this.authService.createUserWithEmailAndPassword(form.value);
   }
 }

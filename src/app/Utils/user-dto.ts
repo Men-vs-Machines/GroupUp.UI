@@ -8,3 +8,13 @@ export const mapUserDto = (firebaseUser: firebaseUser): User => {
   user.displayName = firebaseUser.displayName;
   return user;
 }
+
+
+export const mapUserToEmailSignIn = (user: User): User => {
+  console.log(user);
+  const newUser = new User();
+  newUser.email = `${user.displayName}@example.com`
+  newUser.password = user.password
+  console.log(newUser);
+  return newUser;
+}

@@ -1,3 +1,4 @@
+import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
@@ -43,7 +44,8 @@ export class AuthService {
 
   // displayName will be mapped to Email
   public async createUserWithEmailAndPassword(user: User) {
-    return await this.angularAuth.createUserWithEmailAndPassword(user.displayName, user.password)
+    const newUser = mapUserToEmailSignIn(user);
+    return await this.angularAuth.createUserWithEmailAndPassword(newUser.displayName, newUser.password)
   }
 
   // displayName will be mapped to email
