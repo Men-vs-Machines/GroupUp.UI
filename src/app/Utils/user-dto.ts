@@ -11,11 +11,8 @@ export const mapUserDto = (firebaseUser: firebaseUser): User => {
 }
 
 export const mapUserToEmailSignIn = (user: User): User => {
-  console.log(user);
-  const newUser: User = {
+  return {
     email: `${user.displayName}@example.com`,
     password: user.password
   };
-  console.log(newUser);
-  return newUser;
 }

@@ -21,7 +21,7 @@ import { GroupUpApiService } from '../../Services/group-up-api.service';
 import { AuthService } from 'src/app/Services/auth.service';
 import firebase from 'firebase/compat';
 import firebaseUser = firebase.User;
-import { User } from './../../Models/user';
+import { User, UserSchema } from './../../Models/user';
 
 @Component({
   selector: 'app-home',
@@ -45,8 +45,8 @@ export class HomeComponent extends Destroyable implements OnInit {
     super();
 
     this.signInForm = this.fb.group({
-      displayName: [null, [Validators.required, this.whiteSpaceValidator]],
-      password: [null, [Validators.required]],
+      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator])],
+      password: ['', Validators.compose([Validators.required, Validators.minLength(6)])],
     });
   }
 
@@ -107,14 +107,12 @@ export class HomeComponent extends Destroyable implements OnInit {
 
 
   public async onSubmit(form: FormGroup) {
-    const compressedDisplayName = (form.value.displayName as string)
-      .trim()
-      .replace(/\s/g, '');
-    const user: User = {
-      displayName: compressedDisplayName,
-      password: form.value.password,
-    };
-    console.log(user);
-    // await this.authService.createUserWithEmailAndPassword(form.value);
+    if (!UserSchema.safeParse(form.value).success || !form.valid) {
+      console.log('Invalid user');
+      return;
+    }
+    
+    const user: User = UserSchema.parse(form.value);
+    await this.authService.createUserWithEmailAndPassword(user);
   }
 }

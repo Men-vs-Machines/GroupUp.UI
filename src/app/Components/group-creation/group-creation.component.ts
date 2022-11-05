@@ -44,7 +44,8 @@ export class GroupCreationComponent extends Utility implements OnInit {
         takeUntil(this.destroy$)
       )
       .subscribe((user) => {
-        this.Users().push(
+        console.log(user)
+        this.users.push(
           this.fb.group({
             displayName: user.displayName,
             hidden: true,
@@ -54,7 +55,7 @@ export class GroupCreationComponent extends Utility implements OnInit {
       });
   }
 
-  Users(): FormArray {
+  get users(): FormArray {
     return this.groupForm.get('users') as FormArray;
   }
 
@@ -65,11 +66,11 @@ export class GroupCreationComponent extends Utility implements OnInit {
   }
 
   addUser() {
-    this.Users().push(this.newUser());
+    this.users.push(this.newUser());
   }
 
   removeUser(i: number) {
-    this.Users().removeAt(i);
+    this.users.removeAt(i);
   }
 
   onSubmit(group: FormGroup) {

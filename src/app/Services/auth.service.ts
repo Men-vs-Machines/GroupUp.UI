@@ -45,7 +45,7 @@ export class AuthService {
   // displayName will be mapped to Email
   public async createUserWithEmailAndPassword(user: User) {
     const newUser = mapUserToEmailSignIn(user);
-    return await this.angularAuth.createUserWithEmailAndPassword(newUser.displayName, newUser.password)
+    return await this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)
   }
 
   // displayName will be mapped to email

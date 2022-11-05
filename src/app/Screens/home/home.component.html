@@ -9,7 +9,7 @@
   </p>
 
   <ng-container *ngIf="!(this.user$ | async)">
-    <div (ngSubmit)="onSubmit(this.signInForm)" [formGroup]="signInForm">
+    <div [formGroup]="signInForm">
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
         <input formControlName="displayName" matInput required="required" />
@@ -19,7 +19,6 @@
           No whitespace allowed
         </mat-error>
       </mat-form-field>
-      <p>{{ signInForm.get("displayName")?.errors | json }}</p>
 
       <mat-form-field appearance="outline">
         <mat-label>Password</mat-label>
@@ -29,9 +28,14 @@
           matInput
           required="required"
         />
+        <mat-error *ngIf="signInForm.get('password')?.hasError('minlength')">
+          Pasword too short
+        </mat-error>
       </mat-form-field>
 
-      <button mat-raised-button type="submit">Enter</button>
+      <button mat-raised-button color="primary" (click)="onSubmit(signInForm)">
+        Enter
+      </button>
     </div>
   </ng-container>
 
