@@ -14,7 +14,8 @@ export const environment = {
     measurementId: 'G-2JB8W1YJMH',
   },
   production: false,
-  GroupUpAPI: 'http://localhost:5000'
+  GroupUpAPI: 'http://localhost:5000',
+  groupUpBff: 'http://localhost:3000'
 };
 
 /*

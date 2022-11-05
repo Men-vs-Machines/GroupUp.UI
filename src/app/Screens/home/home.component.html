@@ -1,28 +1,47 @@
 <mat-card>
-  <div class="mat-display-2" style="margin-bottom: 2rem">Welcome to GroupUp</div>
+  <div class="mat-display-2" style="margin-bottom: 2rem">
+    Welcome to GroupUp
+  </div>
   <p class="mat-title">
-    A website dedicated to creating a group based name picker (think Secret Santa)
-    without the need to make an account. No email, no third-party auth, no trackers, no BS!
+    A website dedicated to creating a group based name picker (think Secret
+    Santa) without the need to make an account. No email, no third-party auth,
+    no trackers, no BS!
   </p>
 
   <ng-container *ngIf="!(this.user$ | async)">
-
-    <form (ngSubmit)="onSubmit(this.signInForm)" [formGroup]="signInForm">
-
+    <div (ngSubmit)="onSubmit(this.signInForm)" [formGroup]="signInForm">
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
-        <input formControlName="displayName" matInput required="required">
+        <input formControlName="displayName" matInput required="required" />
+        <mat-error
+          *ngIf="signInForm.get('displayName')?.hasError('whitespace')"
+        >
+          No whitespace allowed
+        </mat-error>
       </mat-form-field>
-
+      <p>{{ signInForm.get("displayName")?.errors | json }}</p>
 
       <mat-form-field appearance="outline">
         <mat-label>Password</mat-label>
-        <input formControlName="password" type="password" matInput required="required">
+        <input
+          formControlName="password"
+          type="password"
+          matInput
+          required="required"
+        />
       </mat-form-field>
 
       <button mat-raised-button type="submit">Enter</button>
-    </form>
+    </div>
   </ng-container>
 
-  <button color="accent" mat-raised-button type="submit" routerLink="/group" *ngIf="!!(this.user$ | async)">Create a group!</button>
+  <button
+    color="accent"
+    mat-raised-button
+    type="submit"
+    routerLink="/group"
+    *ngIf="!!(this.user$ | async)"
+  >
+    Create a group!
+  </button>
 </mat-card>

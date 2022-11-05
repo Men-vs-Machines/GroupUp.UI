@@ -99,9 +99,10 @@ export class GroupCreationComponent extends Utility implements OnInit {
   }
 
   private mapToGroup(group) {
-    const newGroup = new Group();
-    newGroup.name = group.value.name;
-    newGroup.users = group.value.users;
+    const newGroup: Group = {
+      name: group.value.name,
+      users: group.value.users,
+    };
     return newGroup;
   }
 }

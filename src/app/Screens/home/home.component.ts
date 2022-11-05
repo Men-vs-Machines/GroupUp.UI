@@ -1,16 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { Destroyable } from "../../Utils/destroyable";
-import { BehaviorSubject, debounceTime, fromEvent } from "rxjs";
-import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { HttpClient } from "@angular/common/http";
-import { environment } from "../../../environments/environment";
-import { GroupUpApiService } from "../../Services/group-up-api.service";
+import { Destroyable } from '../../Utils/destroyable';
+import { BehaviorSubject, debounceTime, fromEvent } from 'rxjs';
+import {
+  BreakpointObserver,
+  Breakpoints,
+  BreakpointState,
+} from '@angular/cdk/layout';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { GroupUpApiService } from '../../Services/group-up-api.service';
 import { AuthService } from 'src/app/Services/auth.service';
-import firebase from "firebase/compat";
+import firebase from 'firebase/compat';
 import firebaseUser = firebase.User;
-import { User } from '../../Models/user';
-
+import { User } from './../../Models/user';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +31,9 @@ import { User } from '../../Models/user';
 export class HomeComponent extends Destroyable implements OnInit {
   columnSize: number;
   signInForm: FormGroup;
-  user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(null);
+  user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(
+    null
+  );
 
   constructor(
     private breakPoints: BreakpointObserver,
@@ -32,7 +45,7 @@ export class HomeComponent extends Destroyable implements OnInit {
     super();
 
     this.signInForm = this.fb.group({
-      displayName: [null, [Validators.required]],
+      displayName: [null, [Validators.required, this.whiteSpaceValidator]],
       password: [null, [Validators.required]],
     });
   }
@@ -45,7 +58,7 @@ export class HomeComponent extends Destroyable implements OnInit {
         // this.mediaBreakpoint$.next(evt.target.innerWidth);
       });
 
-      this.authService.user$.subscribe(this.user$);
+    this.authService.user$.subscribe(this.user$);
 
     this.breakPoints
       .observe([
@@ -79,7 +92,29 @@ export class HomeComponent extends Destroyable implements OnInit {
       });
   }
 
+  whiteSpaceValidator: ValidatorFn = (control: AbstractControl) => {
+    if (!control || !control.value) {
+      return null;
+    }
+    
+    const regex = new RegExp(/\s/g);
+    if (regex.test(control.value)) {
+      return { whitespace: true };
+    }
+
+    return null;
+  }
+
+
   public async onSubmit(form: FormGroup) {
-    await this.authService.createUserWithEmailAndPassword(form.value);
+    const compressedDisplayName = (form.value.displayName as string)
+      .trim()
+      .replace(/\s/g, '');
+    const user: User = {
+      displayName: compressedDisplayName,
+      password: form.value.password,
+    };
+    console.log(user);
+    // await this.authService.createUserWithEmailAndPassword(form.value);
   }
 }
