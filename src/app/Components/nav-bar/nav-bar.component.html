@@ -2,18 +2,16 @@
   <span>Group Up</span>
   <span style="display: flex; flex-grow: 1"></span>
 
-  <ng-container *ngIf="dataState$ | async as data">
-    <ng-container *ngIf="data.value">
-      <span>Hello, {{ data.value?.displayName ?? data.value?.email }}!</span>
-      <button
-        color="warn"
-        mat-raised-button
-        type="button"
-        (click)="signOut()"
-        style="margin-left: 1rem"
-      >
-        Sign out
-      </button>
-    </ng-container>
+  <ng-container *ngIf="user$ | async as user">
+    <span>Hello, {{ user.displayName ?? user.email }}!</span>
+    <button
+      color="warn"
+      mat-raised-button
+      type="button"
+      (click)="signOut()"
+      style="margin-left: 1rem"
+    >
+      Sign out
+    </button>
   </ng-container>
 </mat-toolbar>

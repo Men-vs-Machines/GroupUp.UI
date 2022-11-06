@@ -7,7 +7,6 @@ import { Group } from '../../Models/group';
 import { User } from '../../Models/user';
 import { SnackbarService } from '../../Services/snackbar.service';
 import { Router } from '@angular/router';
-import { mapUserDto } from '../../Utils/user-dto';
 import { Utility } from 'src/app/Utils/utility';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { GroupSchema } from './../../Models/group';
@@ -45,7 +44,6 @@ export class GroupCreationComponent extends Utility implements OnInit {
     this.auth.user$
       .pipe(
         filter((user) => !!user),
-        map((user) => mapUserDto(user)),
         takeUntil(this.destroy$)
       )
       .subscribe((user) => {

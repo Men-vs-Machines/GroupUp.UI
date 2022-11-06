@@ -1,18 +1,19 @@
 import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, first, Observable, Subject, tap} from 'rxjs';
+import {BehaviorSubject, concatMap, EMPTY, first, forkJoin, iif, mergeMap, Observable, Subject, switchMap, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
 import firebaseUser = Firebase.User;
 import { User } from "../Models/user";
+import { DataProviderService } from 'src/app/Services/data-provider.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private _user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(null);
-  get user$(): Observable<firebaseUser> {
+  private _user$: BehaviorSubject<User> = new BehaviorSubject<User>(null);
+  get user$(): Observable<User> {
     return this._user$.asObservable()
   }
 
@@ -21,23 +22,23 @@ export class AuthService {
     return this._token$.asObservable();
   }
 
-  constructor(private angularAuth: AngularFireAuth, private httpclient: HttpClient) {
-    this.angularAuth.authState.subscribe(firebaseUser => {
-      // @ts-ignore
-      this.user = firebaseUser
-      this.configureAuthState(firebaseUser);
+  constructor(private angularAuth: AngularFireAuth, private dataProviderService: DataProviderService) {
+    this.angularAuth.authState.pipe(
+      tap(() => console.log("auth state changed")),
+      switchMap((firebaseUser: firebaseUser | null) => iif(
+        () => !!firebaseUser,
+          this.onUserSignIn(firebaseUser),
+          this.onUserSignOut())))
+    .subscribe({
+      error: () => this.signOutUser()
     });
   }
 
-  public async SignOutUser() {
+  public async signOutUser() {
     localStorage.removeItem("jwt");
     this._token$.next(null);
     this._user$.next(null);
     await this.angularAuth.signOut()
-  }
-
-  public async signInAnonymousUser() {
-    return await this.angularAuth.signInAnonymously();
   }
 
   // displayName will be mapped to Email
@@ -61,18 +62,41 @@ export class AuthService {
     return this.angularAuth.authState.pipe(first());
   }
 
+  private onUserSignOut() {
+    return EMPTY.pipe(
+      tap(() => {
+        this._token$.next(null);
+        this._user$.next(null);
+      }),
+      switchMap(() => this.angularAuth.signOut())
+    );
+  }
+
+  private onUserSignIn(firebaseUser: firebaseUser | null) {
+    return forkJoin({
+      user: this.dataProviderService.getUser(firebaseUser.uid),
+      token: firebaseUser.getIdToken()
+    }).pipe(
+      tap(({user, token}) => {
+        this._user$.next(user);
+        this._token$.next(token);
+      }),
+      tap(({user, token}) => console.log("user and token", user, token)))
+  }
+
   // TODO: Add spinner service to block page while user is loading in
   private async configureAuthState(firebaseUser: firebaseUser | null) {
     if (firebaseUser) {
       console.log("we are signed in")
       const token = await firebaseUser.getIdToken();
       localStorage.setItem("jwt", token);
+      const user = this.dataProviderService.getUser(firebaseUser.uid);
       this._token$.next(token);
-      this._user$.next(firebaseUser);
+      // this._user$.next(user);
       console.log(firebaseUser)
     } else {
       console.log("signed out")
-      await this.SignOutUser();
+      await this.signOutUser();
     }
   }
 }

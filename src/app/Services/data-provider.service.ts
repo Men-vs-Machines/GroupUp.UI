@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Group } from '../Models/group';
 import { Observable, tap } from 'rxjs';
+import { User } from 'src/app/Models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -17,5 +18,9 @@ export class DataProviderService {
 
   public getGroup(groupId: string): Observable<Group> {
     return this.httpClient.get<Group>(`${environment.groupUpBff}/groups/${groupId}`);
+  }
+
+  public getUser(userId: string): Observable<User> {
+    return this.httpClient.get<Group>(`${environment.groupUpBff}/users/${userId}`);
   }
 }
