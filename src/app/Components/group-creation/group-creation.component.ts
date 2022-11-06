@@ -9,6 +9,8 @@ import { SnackbarService } from '../../Services/snackbar.service';
 import { Router } from '@angular/router';
 import { mapUserDto } from '../../Utils/user-dto';
 import { Utility } from 'src/app/Utils/utility';
+import { DataProviderService } from 'src/app/Services/data-provider.service';
+import { GroupSchema } from './../../Models/group';
 
 @Component({
   selector: 'app-group-creation',
@@ -24,19 +26,22 @@ export class GroupCreationComponent extends Utility implements OnInit {
     private secretSantaApi: GroupUpApiService,
     protected override auth: AuthService,
     private snackbarService: SnackbarService,
-    protected override router: Router
+    protected override router: Router,
+    private dataProviderService: DataProviderService
   ) {
     super(router, auth);
     
     this.groupForm = this.fb.group({
       name: [null, [Validators.required]],
-      users: this.fb.array([]),
+      users: [null],
     });
   }
 
-  ngOnInit() {
-    this.addUser();
+  get users(): FormArray {
+    return this.groupForm.get('users') as FormArray;
+  }
 
+  ngOnInit() {
     this.auth.user$
       .pipe(
         filter((user) => !!user),
@@ -44,33 +49,16 @@ export class GroupCreationComponent extends Utility implements OnInit {
         takeUntil(this.destroy$)
       )
       .subscribe((user) => {
-        console.log(user)
-        this.users.push(
-          this.fb.group({
-            displayName: user.displayName,
-            hidden: true,
-            id: user.id,
-          })
-        );
+        this.groupForm.patchValue({
+          users: [user],
+        });
       });
-  }
-
-  get users(): FormArray {
-    return this.groupForm.get('users') as FormArray;
   }
 
   newUser(): FormGroup {
     return this.fb.group({
       displayName: '',
     });
-  }
-
-  addUser() {
-    this.users.push(this.newUser());
-  }
-
-  removeUser(i: number) {
-    this.users.removeAt(i);
   }
 
   onSubmit(group: FormGroup) {
@@ -84,12 +72,11 @@ export class GroupCreationComponent extends Utility implements OnInit {
     }
 
     const newGroup = this.mapToGroup(group);
-
+    console.log(newGroup);
     // Post as new Users
-    const users = group.value.users as User[];
 
-    this.secretSantaApi
-      .postGroup(newGroup)
+    this.dataProviderService
+      .createGroup(newGroup)
       .pipe(
         filter((group) => !!group),
         tap((x) => console.log(x)),
@@ -99,11 +86,11 @@ export class GroupCreationComponent extends Utility implements OnInit {
       .subscribe((id) => this.router.navigate(['/group', id]));
   }
 
-  private mapToGroup(group) {
-    const newGroup: Group = {
-      name: group.value.name,
-      users: group.value.users,
-    };
-    return newGroup;
+  private mapToGroup(group: FormGroup): Group {
+    if (!GroupSchema.safeParse(group.value).success) {
+      console.error('Group Creation: Invalid Group');
+    }
+
+    return GroupSchema.parse(group.value); 
   }
 }
