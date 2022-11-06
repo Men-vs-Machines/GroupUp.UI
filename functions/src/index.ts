@@ -6,14 +6,8 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-// create a firebase function that inserts a user into firestore when they are created
-export const createUser = functions.auth.user().onCreate((user: any) => {
-  return admin.firestore().collection('users').doc(user.uid).set({
-    email: user.email,
-    displayName: user.displayName,
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
-  });
-});
+// Deleted the firebase function to create user on auth trigger because too slow to insert data into firestore
+
 
 // create a firebase function that deletes a user from firestore when they are deleted
 export const deleteUser = functions.auth.user().onDelete((user: any) => {

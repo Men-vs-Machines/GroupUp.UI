@@ -38,8 +38,6 @@ export class HomeComponent extends Destroyable implements OnInit {
   constructor(
     private breakPoints: BreakpointObserver,
     private fb: FormBuilder,
-    private httpClient: HttpClient,
-    private apiService: GroupUpApiService,
     private authService: AuthService
   ) {
     super();

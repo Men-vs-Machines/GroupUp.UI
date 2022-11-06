@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../Services/auth.service";
-import { BehaviorSubject, map, Observable, startWith } from "rxjs";
+import { BehaviorSubject, map, Observable, startWith, take } from "rxjs";
 import firebase from "firebase/compat";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SnackbarService } from "../../Services/snackbar.service";
@@ -28,7 +28,7 @@ export class NavBarComponent implements OnInit {
     this.authService.user$.subscribe(user => this.user$.next(user));
   }
 
-  async signOut() {
-    await this.authService.signOutUser();
+  signOut() {
+    this.authService.signOutUser$().pipe(take(1)).subscribe();
   }
 }

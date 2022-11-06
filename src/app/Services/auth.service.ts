@@ -1,6 +1,6 @@
 import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, concatMap, EMPTY, first, forkJoin, iif, mergeMap, Observable, Subject, switchMap, tap} from 'rxjs';
+import {BehaviorSubject, concatMap, delay, EMPTY, first, forkJoin, from, iif, mergeMap, Observable, of, Subject, switchMap, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
@@ -24,27 +24,27 @@ export class AuthService {
 
   constructor(private angularAuth: AngularFireAuth, private dataProviderService: DataProviderService) {
     this.angularAuth.authState.pipe(
-      tap(() => console.log("auth state changed")),
-      switchMap((firebaseUser: firebaseUser | null) => iif(
-        () => !!firebaseUser,
-          this.onUserSignIn(firebaseUser),
-          this.onUserSignOut())))
-    .subscribe({
-      error: () => this.signOutUser()
-    });
+      tap((user) => console.log('auth state changed', user)),
+      switchMap((firebaseUser: firebaseUser | null) => {
+        if (!!firebaseUser) {
+          return this.onUserSignIn$(firebaseUser);
+        }
+
+        return this.onUserSignOut$();
+      }))
+    .subscribe();
   }
 
-  public async signOutUser() {
-    localStorage.removeItem("jwt");
-    this._token$.next(null);
-    this._user$.next(null);
-    await this.angularAuth.signOut()
+  public signOutUser$() {
+    return this.onUserSignOut$();
   }
 
   // displayName will be mapped to Email
   public async createUserWithEmailAndPassword(user: User) {
     const newUser = mapUserToEmailSignIn(user);
-    return await this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)
+    const credential = await this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)
+    const uid = credential.user.uid;
+    await this.dataProviderService.createUser(uid).toPromise();
   }
 
   // displayName will be mapped to email
@@ -62,41 +62,43 @@ export class AuthService {
     return this.angularAuth.authState.pipe(first());
   }
 
-  private onUserSignOut() {
-    return EMPTY.pipe(
+  private onUserSignOut$(): Observable<void> {
+    return of(null).pipe(
       tap(() => {
         this._token$.next(null);
         this._user$.next(null);
+        localStorage.removeItem("jwt");
       }),
-      switchMap(() => this.angularAuth.signOut())
+      switchMap(() => from(this.angularAuth.signOut())),
     );
   }
 
-  private onUserSignIn(firebaseUser: firebaseUser | null) {
+  private onUserSignIn$(firebaseUser: firebaseUser | null): Observable<{ user: { displayName?: string; password?: string; wishList?: string[]; id?: string; email?: string; groups?: string[]; }; token: string; }> {
     return forkJoin({
       user: this.dataProviderService.getUser(firebaseUser.uid),
-      token: firebaseUser.getIdToken()
+      token: from(firebaseUser.getIdToken())
     }).pipe(
       tap(({user, token}) => {
         this._user$.next(user);
         this._token$.next(token);
+        localStorage.setItem("jwt", token);
       }),
       tap(({user, token}) => console.log("user and token", user, token)))
   }
 
   // TODO: Add spinner service to block page while user is loading in
-  private async configureAuthState(firebaseUser: firebaseUser | null) {
-    if (firebaseUser) {
-      console.log("we are signed in")
-      const token = await firebaseUser.getIdToken();
-      localStorage.setItem("jwt", token);
-      const user = this.dataProviderService.getUser(firebaseUser.uid);
-      this._token$.next(token);
-      // this._user$.next(user);
-      console.log(firebaseUser)
-    } else {
-      console.log("signed out")
-      await this.signOutUser();
-    }
-  }
+  // private async configureAuthState(firebaseUser: firebaseUser | null) {
+  //   if (firebaseUser) {
+  //     console.log("we are signed in")
+  //     const token = await firebaseUser.getIdToken();
+  //     localStorage.setItem("jwt", token);
+  //     const user = this.dataProviderService.getUser(firebaseUser.uid);
+  //     this._token$.next(token);
+  //     // this._user$.next(user);
+  //     console.log(firebaseUser)
+  //   } else {
+  //     console.log("signed out")
+  //     await this.signOutUser();
+  //   }
+  // }
 }

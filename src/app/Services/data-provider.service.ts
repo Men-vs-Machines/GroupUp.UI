@@ -23,4 +23,8 @@ export class DataProviderService {
   public getUser(userId: string): Observable<User> {
     return this.httpClient.get<Group>(`${environment.groupUpBff}/users/${userId}`);
   }
+
+  public createUser(userId: string) {
+    return this.httpClient.post(`${environment.groupUpBff}/users`, userId);
+  }
 }
