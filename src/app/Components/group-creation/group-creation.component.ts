@@ -73,14 +73,12 @@ export class GroupCreationComponent extends Utility implements OnInit {
 
     const newGroup = this.mapToGroup(group);
     console.log(newGroup);
-    // Post as new Users
 
     this.dataProviderService
       .createGroup(newGroup)
       .pipe(
-        filter((group) => !!group),
-        tap((x) => console.log(x)),
-        map((group) => group.id),
+        filter((id) => !!id),
+        tap((x) => console.log('Group Creation: ', x)),
         takeUntil(this.destroy$)
       )
       .subscribe((id) => this.router.navigate(['/group', id]));

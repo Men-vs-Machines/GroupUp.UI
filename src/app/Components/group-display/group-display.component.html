@@ -1,8 +1,10 @@
-<ng-container *ngIf="this.currentGroup">
-  <h1 class="mat-display-2" style="color: whitesmoke"> Welcome to {{currentGroup.name}}!</h1>
+<ng-container *ngIf="groupSubject | async as group">
+  <h1 class="mat-display-2" style="color: whitesmoke">
+    Welcome to {{ group.name }}!
+  </h1>
   <ul>
-    <li *ngFor="let user of currentGroup.users">
-      <span>{{user.displayName}}</span>
+    <li *ngFor="let user of group.users">
+      <span>{{ user.displayName }}</span>
     </li>
   </ul>
 </ng-container>

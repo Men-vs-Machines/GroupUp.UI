@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GroupUpApiService } from '../../Services/group-up-api.service';
 import { Destroyable } from '../../Utils/destroyable';
-import { filter, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
 import { AuthService } from 'src/app/Services/auth.service';
+import { DataProviderService } from 'src/app/Services/data-provider.service';
 
 @Component({
   selector: 'app-group-display',
@@ -13,11 +14,12 @@ import { AuthService } from 'src/app/Services/auth.service';
   styleUrls: ['./group-display.component.scss'],
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
-  currentGroup: Group;
+
+  groupSubject = new Subject<Group>();
 
   constructor(
     private _activatedRoute: ActivatedRoute,
-    private _groupUpApiService: GroupUpApiService,
+    private dataProviderService: DataProviderService,
     protected override auth: AuthService,
     protected override router: Router
   ) {
@@ -27,15 +29,12 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   ngOnInit(): void {
     const groupId = this._activatedRoute.snapshot.params['id'];
 
-    this._groupUpApiService
+    this.dataProviderService
       .getGroup(groupId)
       .pipe(
         filter((group) => !!group),
         takeUntil(this.destroy$)
       )
-      .subscribe((x) => {
-        console.log(x);
-        this.currentGroup = x;
-      });
+      .subscribe(this.groupSubject);
   }
 }

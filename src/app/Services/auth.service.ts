@@ -1,6 +1,6 @@
 import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, first, Observable, Subject, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
@@ -11,8 +11,6 @@ import { User } from "../Models/user";
   providedIn: 'root'
 })
 export class AuthService {
-  private user: firebaseUser = null;
-
   private _user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(null);
   get user$(): Observable<firebaseUser> {
     return this._user$.asObservable()
@@ -24,10 +22,10 @@ export class AuthService {
   }
 
   constructor(private angularAuth: AngularFireAuth, private httpclient: HttpClient) {
-    this.angularAuth.authState.subscribe(async firebaseUser => {
+    this.angularAuth.authState.subscribe(firebaseUser => {
       // @ts-ignore
       this.user = firebaseUser
-      await this.configureAuthState(firebaseUser);
+      this.configureAuthState(firebaseUser);
     });
   }
 
@@ -59,20 +57,19 @@ export class AuthService {
     });
   }
 
+  public isLoggedIn(): Observable<Firebase.User> {
+    return this.angularAuth.authState.pipe(first());
+  }
+
   // TODO: Add spinner service to block page while user is loading in
   private async configureAuthState(firebaseUser: firebaseUser | null) {
     if (firebaseUser) {
       console.log("we are signed in")
-      firebaseUser.getIdToken().then((theToken) => {
-        localStorage.setItem("jwt", theToken);
-        this.user = firebaseUser;
-        this._token$.next(theToken);
-        this._user$.next(firebaseUser);
-        console.log(firebaseUser)
-      }, async () => {
-        console.log("signed out")
-        await this.SignOutUser();
-      });
+      const token = await firebaseUser.getIdToken();
+      localStorage.setItem("jwt", token);
+      this._token$.next(token);
+      this._user$.next(firebaseUser);
+      console.log(firebaseUser)
     } else {
       console.log("signed out")
       await this.SignOutUser();

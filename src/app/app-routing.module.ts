@@ -7,17 +7,17 @@ import { GroupDisplayComponent } from './Components/group-display/group-display.
 import { RouteGuardService as RouteGuard } from './Security/route-guard.service';
 
 const ROUTES: Routes = [
+  {
+    path: 'group/:id',
+    component: GroupDisplayComponent,
+    canActivate: [RouteGuard],
+  },
   { path: '', redirectTo: '/index', pathMatch: 'full' },
   { path: 'index', component: HomeComponent },
   { path: 'not-found', component: PageNotFoundComponent },
   {
     path: 'group',
     component: GroupCreationComponent,
-    canActivate: [RouteGuard],
-  },
-  {
-    path: 'group/:id',
-    component: GroupDisplayComponent,
     canActivate: [RouteGuard],
   },
   { path: '**', redirectTo: '/not-found', pathMatch: 'full' },
