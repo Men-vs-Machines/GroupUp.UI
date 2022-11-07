@@ -1,6 +1,6 @@
 import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, concatMap, delay, EMPTY, first, forkJoin, from, iif, mergeMap, Observable, of, Subject, switchMap, tap} from 'rxjs';
+import { BehaviorSubject, concatMap, delay, EMPTY, first, forkJoin, iif, mergeMap, Observable, of, Subject, switchMap, tap, take, from, map } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
@@ -40,11 +40,15 @@ export class AuthService {
   }
 
   // displayName will be mapped to Email
-  public async createUserWithEmailAndPassword(user: User) {
+  public createUserWithEmailAndPassword(user: User) {
     const newUser = mapUserToEmailSignIn(user);
-    const credential = await this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)
-    const uid = credential.user.uid;
-    await this.dataProviderService.createUser(uid).toPromise();
+   
+    // TODO: figure out authstate timing between creating user and fetching user
+    from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)).pipe(
+      map((userCredential) => ({...newUser, id: userCredential.user.uid})),
+      tap(data => console.log('the new user is', data)),
+      switchMap((user) => this.dataProviderService.createUser(user))
+    ).subscribe();
   }
 
   // displayName will be mapped to email
