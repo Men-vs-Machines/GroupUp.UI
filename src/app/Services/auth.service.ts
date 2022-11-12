@@ -43,11 +43,12 @@ export class AuthService {
   public createUserWithEmailAndPassword(user: User) {
     const newUser = mapUserToEmailSignIn(user);
    
-    // TODO: figure out authstate timing between creating user and fetching user
     from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)).pipe(
       map((userCredential) => ({...newUser, id: userCredential.user.uid})),
       tap(data => console.log('the new user is', data)),
-      switchMap((user) => this.dataProviderService.createUser(user))
+      switchMap((user) => this.dataProviderService.createUser(user)),
+      // Delay to avoid timing issues with authstate
+      delay(100)
     ).subscribe();
   }
 
