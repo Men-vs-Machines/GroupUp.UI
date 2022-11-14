@@ -41,16 +41,16 @@ export class AuthService {
   }
 
   // displayName will be mapped to Email
-  public createUserWithEmailAndPassword(user: User) {
+  public createUserWithEmailAndPassword$(user: User): Observable<unknown> {
     const newUser = mapUserToEmailSignIn(user);
    
-    from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)).pipe(
+    return from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password)).pipe(
       map((userCredential) => ({...newUser, id: userCredential.user.uid})),
       tap(data => console.log('the new user is', data)),
       switchMap((user) => this.dataProviderService.createUser(user)),
       // Delay to avoid timing issues with authstate
       delay(100)
-    ).subscribe();
+    );
   }
 
   // displayName will be mapped to email

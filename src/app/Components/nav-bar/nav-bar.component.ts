@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../../Services/auth.service";
-import { BehaviorSubject, map, Observable, startWith, take } from "rxjs";
+import { BehaviorSubject, map, Observable, startWith, take, tap } from "rxjs";
 import firebase from "firebase/compat";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SnackbarService } from "../../Services/snackbar.service";
-import { UserLoadingState } from "../../Models/user-loading-state";
-import firebaseUser = firebase.User;
 import { User } from 'src/app/Models/user';
-
 
 @Component({
   selector: 'app-nav-bar',
