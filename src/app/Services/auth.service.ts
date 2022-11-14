@@ -1,6 +1,6 @@
 import { mapUserToEmailSignIn } from './../Utils/user-dto';
 import {Injectable} from '@angular/core';
-import { BehaviorSubject, concatMap, delay, EMPTY, first, forkJoin, iif, mergeMap, Observable, of, Subject, switchMap, tap, take, from, map } from 'rxjs';
+import { BehaviorSubject, concatMap, delay, EMPTY, first, forkJoin, iif, mergeMap, Observable, of, Subject, switchMap, tap, take, from, map, distinctUntilChanged } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import Firebase from "firebase/compat";
@@ -14,7 +14,7 @@ import { DataProviderService } from 'src/app/Services/data-provider.service';
 export class AuthService {
   private _user$: BehaviorSubject<User> = new BehaviorSubject<User>(null);
   get user$(): Observable<User> {
-    return this._user$.asObservable()
+    return this._user$;
   }
 
   private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -23,7 +23,8 @@ export class AuthService {
   }
 
   constructor(private angularAuth: AngularFireAuth, private dataProviderService: DataProviderService) {
-    this.angularAuth.authState.pipe(
+    this.user$.pipe(
+      distinctUntilChanged(),
       tap((user) => console.log('auth state changed', user)),
       switchMap((firebaseUser: firebaseUser | null) => {
         if (!!firebaseUser) {
@@ -90,20 +91,4 @@ export class AuthService {
       }),
       tap(({user, token}) => console.log("user and token", user, token)))
   }
-
-  // TODO: Add spinner service to block page while user is loading in
-  // private async configureAuthState(firebaseUser: firebaseUser | null) {
-  //   if (firebaseUser) {
-  //     console.log("we are signed in")
-  //     const token = await firebaseUser.getIdToken();
-  //     localStorage.setItem("jwt", token);
-  //     const user = this.dataProviderService.getUser(firebaseUser.uid);
-  //     this._token$.next(token);
-  //     // this._user$.next(user);
-  //     console.log(firebaseUser)
-  //   } else {
-  //     console.log("signed out")
-  //     await this.signOutUser();
-  //   }
-  // }
 }
