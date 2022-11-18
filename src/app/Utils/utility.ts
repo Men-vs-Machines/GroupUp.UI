@@ -12,6 +12,7 @@ export abstract class Utility extends Destroyable {
     this.auth.token$
       .pipe(
         map((token) => !!token),
+        tap(data => console.log('in the utility class', data)),
         takeUntil(this.destroy$)
       )
       .subscribe((isSignedIn) => {

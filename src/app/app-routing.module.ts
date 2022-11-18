@@ -12,14 +12,14 @@ const ROUTES: Routes = [
     component: GroupDisplayComponent,
     canActivate: [RouteGuard],
   },
-  { path: '', redirectTo: '/index', pathMatch: 'full' },
-  { path: 'index', component: HomeComponent },
-  { path: 'not-found', component: PageNotFoundComponent },
   {
     path: 'group',
     component: GroupCreationComponent,
     canActivate: [RouteGuard],
-  },
+  },  
+  { path: '', redirectTo: '/index', pathMatch: 'full' },
+  { path: 'index', component: HomeComponent },
+  { path: 'not-found', component: PageNotFoundComponent },
   { path: '**', redirectTo: '/not-found', pathMatch: 'full' },
 ];
 
