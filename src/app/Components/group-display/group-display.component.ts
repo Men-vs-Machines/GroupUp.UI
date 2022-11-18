@@ -7,6 +7,7 @@ import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
 import { AuthService } from 'src/app/Services/auth.service';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Component({
   selector: 'app-group-display',
@@ -20,10 +21,10 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   constructor(
     private _activatedRoute: ActivatedRoute,
     private dataProviderService: DataProviderService,
-    protected override auth: AuthService,
+    protected override angularFireAuth: AngularFireAuth,
     protected override router: Router
   ) {
-    super(router, auth);
+    super(router, angularFireAuth);
   }
 
   ngOnInit(): void {

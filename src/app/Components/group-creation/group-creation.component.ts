@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { Utility } from 'src/app/Utils/utility';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { GroupSchema } from './../../Models/group';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Component({
   selector: 'app-group-creation',
@@ -23,12 +24,13 @@ export class GroupCreationComponent extends Utility implements OnInit {
   constructor(
     private fb: FormBuilder,
     private secretSantaApi: GroupUpApiService,
-    protected override auth: AuthService,
+    private auth: AuthService,
+    protected override angularFireAuth: AngularFireAuth,
     private snackbarService: SnackbarService,
     protected override router: Router,
     private dataProviderService: DataProviderService
   ) {
-    super(router, auth);
+    super(router, angularFireAuth);
     
     this.groupForm = this.fb.group({
       name: [null, [Validators.required]],
