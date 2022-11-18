@@ -19,7 +19,7 @@ import {
   map,
   shareReplay,
   repeatWhen,
-  retryWhen,
+  retryWhen
 } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
@@ -70,12 +70,11 @@ export class AuthService {
   public createUserWithEmailAndPassword$(user: User): Observable<unknown> {
     const newUser = mapUserToEmailSignIn(user);
 
-    from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password))
+    return from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password))
       .pipe(
         map((userCredential) => ({ ...newUser, id: userCredential.user.uid })),
         switchMap((user) => this.dataProviderService.createUser(user))
       )
-      .subscribe();
   }
 
   // displayName will be mapped to email
