@@ -111,6 +111,6 @@ export class HomeComponent extends Destroyable implements OnInit {
     }
     
     const user: User = UserSchema.parse(form.value);
-    await this.authService.createUserWithEmailAndPassword(user);
+    this.authService.createUserWithEmailAndPassword$(user).subscribe();
   }
 }

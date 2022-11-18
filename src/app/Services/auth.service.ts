@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   // displayName will be mapped to Email
-  public createUserWithEmailAndPassword(user: User) {
+  public createUserWithEmailAndPassword$(user: User): Observable<unknown> {
     const newUser = mapUserToEmailSignIn(user);
 
     from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password))
