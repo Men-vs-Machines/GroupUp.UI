@@ -22,6 +22,9 @@ import { MatCardModule } from "@angular/material/card";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { GroupDisplayComponent } from './Components/group-display/group-display.component';
+import { MatListModule } from "@angular/material/list";
+import { WishlistComponent } from './Components/wishlist/wishlist.component';
+import { SignInComponent } from './Components/sign-in/sign-in.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +34,8 @@ import { GroupDisplayComponent } from './Components/group-display/group-display.
     GroupCreationComponent,
     PageNotFoundComponent,
     GroupDisplayComponent,
+    WishlistComponent,
+    SignInComponent,
   ],
     imports: [
         BrowserModule,
@@ -49,6 +54,7 @@ import { GroupDisplayComponent } from './Components/group-display/group-display.
         MatGridListModule,
         MatCardModule,
         MatProgressSpinnerModule,
+        MatListModule
     ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}

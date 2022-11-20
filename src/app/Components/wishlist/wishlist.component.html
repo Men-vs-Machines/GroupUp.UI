@@ -1,0 +1,26 @@
+<ng-container *ngIf="user$ | async as user">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Your wishlist</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div [formGroup]="wishListForm">
+        <div *ngFor="let child of wishListForm.controls; i = index">
+          <div formGroupName="{{i}}">
+
+          </div>
+        </div>
+        <!-- <ul formArrayName="items"> -->
+          <!-- <li *ngFor="let item of user.wishList">
+            <mat-form-field>
+              <input
+                matInput
+                autocomplete="no"
+              />
+            </mat-form-field>
+          </li>
+        </ul> -->
+      </div>
+    </mat-card-content>
+  </mat-card>
+</ng-container>
