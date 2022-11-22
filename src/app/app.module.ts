@@ -22,6 +22,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { GroupDisplayComponent } from './Components/group-display/group-display.component';
+import { UserPageComponent } from './Screens/user-page/user-page.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { GroupDisplayComponent } from './Components/group-display/group-display.
     GroupCreationComponent,
     PageNotFoundComponent,
     GroupDisplayComponent,
+    UserPageComponent,
   ],
     imports: [
         BrowserModule,

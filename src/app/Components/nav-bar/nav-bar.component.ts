@@ -16,6 +16,8 @@ export class NavBarComponent implements OnInit {
     Username: [null, [Validators.required]],
   });
 
+  userPageLink = '/user';
+
   public user$ = new BehaviorSubject<User>(null);
 
   constructor( private authService: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService ) {

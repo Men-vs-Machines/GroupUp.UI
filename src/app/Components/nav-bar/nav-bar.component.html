@@ -3,7 +3,9 @@
   <span style="display: flex; flex-grow: 1"></span>
 
   <ng-container *ngIf="user$ | async as user">
-    <span>Hello, {{ user.displayName ?? user.email }}!</span>
+    <span [routerLink]="userPageLink" style="cursor: pointer">
+      >Hello, {{ user.displayName ?? user.email }}!</span
+    >
     <button
       color="warn"
       mat-raised-button
