@@ -1,51 +1,63 @@
-<mat-card>
-  <div class="mat-display-2" style="margin-bottom: 2rem">
-    Welcome to GroupUp
-  </div>
-  <p class="mat-title">
-    A website dedicated to creating a group based name picker (think Secret
-    Santa) without the need to make an account. No email, no third-party auth,
-    no trackers, no BS!
-  </p>
-
-  <ng-container *ngIf="!(this.user$ | async)">
-    <div [formGroup]="signInForm">
-      <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
-        <input formControlName="displayName" matInput required="required" />
-        <mat-error
-          *ngIf="signInForm.get('displayName')?.hasError('whitespace')"
-        >
-          No whitespace allowed
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <input
-          formControlName="password"
-          type="password"
-          matInput
-          required="required"
-        />
-        <mat-error *ngIf="signInForm.get('password')?.hasError('minlength')">
-          Pasword too short
-        </mat-error>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" (click)="onSubmit(signInForm)">
-        Enter
-      </button>
+<div class="container">
+  <mat-card>
+    <div class="mat-display-2" style="margin-bottom: 2rem">
+      Welcome to GroupUp
     </div>
+    <p class="mat-title">
+      A website dedicated to creating a group based name picker (think Secret
+      Santa) without the need to make an account. No email, no third-party auth,
+      no trackers, no BS!
+    </p>
+
+    <button
+      color="accent"
+      mat-raised-button
+      type="submit"
+      routerLink="/group"
+      *ngIf="!!(this.user$ | async)"
+    >
+      Create a group!
+    </button>
+  </mat-card>
+
+  <ng-container *ngIf="!(this.user$ | async); else wishList">
+    <mat-card>
+      <div [formGroup]="signInForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input formControlName="displayName" matInput required="required" />
+          <mat-error
+            *ngIf="signInForm.get('displayName')?.hasError('whitespace')"
+          >
+            No whitespace allowed
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            formControlName="password"
+            type="password"
+            matInput
+            required="required"
+          />
+          <mat-error *ngIf="signInForm.get('password')?.hasError('minlength')">
+            Pasword too short
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onSubmit(signInForm)"
+        >
+          Enter
+        </button>
+      </div>
+    </mat-card>
   </ng-container>
 
-  <button
-    color="accent"
-    mat-raised-button
-    type="submit"
-    routerLink="/group"
-    *ngIf="!!(this.user$ | async)"
-  >
-    Create a group!
-  </button>
-</mat-card>
+  <ng-template #wishList>
+    <app-wishlist></app-wishlist>
+  </ng-template>
+</div>
