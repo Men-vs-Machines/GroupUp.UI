@@ -1,29 +1,3 @@
 * {
   color: whitesmoke;
 }
-
-::ng-deep {
-  .mat-form-field-appearance-outline .mat-form-field-outline {
-    color: purple;
-  }
-  mat-form-field {
-    .mat-hint, input, ::placeholder, .mat-form-field-label {
-      color: white;
-    }
-  }
-
-  mat-form-field.mat-form-field {
-    font-size: 16px;
-    color: white;
-  }
-}
-
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.font-color-whitesmoke {
-  color: whitesmoke;
-}

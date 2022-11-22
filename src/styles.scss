@@ -1,4 +1,44 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; background-color: rgb(43 39 39) }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+  background-color: rgb(43 39 39);
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// * {
+//   color: whitesmoke;
+// }
+
+::ng-deep {
+  .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: rgb(255, 149, 255);
+  }
+  mat-form-field {
+    .mat-hint,
+    input,
+    ::placeholder,
+    .mat-form-field-label {
+      color: white;
+    }
+  }
+
+  mat-form-field.mat-form-field {
+    font-size: 16px;
+    color: white;
+  }
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.font-color-whitesmoke {
+  color: whitesmoke;
+}

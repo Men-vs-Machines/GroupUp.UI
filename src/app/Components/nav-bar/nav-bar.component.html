@@ -4,8 +4,8 @@
 
   <ng-container *ngIf="user$ | async as user">
     <span [routerLink]="userPageLink" style="cursor: pointer">
-      >Hello, {{ user.displayName ?? user.email }}!</span
-    >
+      Hello, {{ user.displayName ?? user.email }}!
+    </span>
     <button
       color="warn"
       mat-raised-button

@@ -5,22 +5,33 @@
     </mat-card-header>
     <mat-card-content>
       <div [formGroup]="wishListForm">
-        <div *ngFor="let child of wishListForm.controls; i = index">
-          <div formGroupName="{{i}}">
-
-          </div>
-        </div>
-        <!-- <ul formArrayName="items"> -->
-          <!-- <li *ngFor="let item of user.wishList">
-            <mat-form-field>
-              <input
-                matInput
-                autocomplete="no"
-              />
-            </mat-form-field>
-          </li>
-        </ul> -->
+        <ng-container formArrayName="items">
+          <ng-container *ngFor="let item of items.controls; let i = index">
+            <div [formGroupName]="i">
+              <mat-form-field>
+                <mat-label>Wishlist item</mat-label>
+                <span class="input-align">
+                  <input
+                    matInput
+                    value="{{ item.value }}"
+                    [disabled]="item.disabled"
+                  />
+                  <ng-container *ngIf="item.disabled; else disable">
+                    <mat-icon (click)="enableForm(i)">lock_open</mat-icon>
+                  </ng-container>
+                  <ng-template #disable>
+                    <mat-icon (click)="disableForm(i)">lock</mat-icon>
+                  </ng-template>
+                </span>
+              </mat-form-field>
+            </div>
+          </ng-container>
+        </ng-container>
+        {{ wishListForm.value | json }}
       </div>
+      <button mat-raised-button color="warn" (click)="addWishListItem()">
+        Add
+      </button>
     </mat-card-content>
   </mat-card>
 </ng-container>
