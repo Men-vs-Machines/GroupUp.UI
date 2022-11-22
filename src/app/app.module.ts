@@ -23,6 +23,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { GroupDisplayComponent } from './Components/group-display/group-display.component';
 import { UserPageComponent } from './Screens/user-page/user-page.component';
+import { MatListModule } from "@angular/material/list";
+import { WishlistComponent } from './Components/wishlist/wishlist.component';
+import { SignInComponent } from './Components/sign-in/sign-in.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +36,8 @@ import { UserPageComponent } from './Screens/user-page/user-page.component';
     PageNotFoundComponent,
     GroupDisplayComponent,
     UserPageComponent,
+    WishlistComponent,
+    SignInComponent,
   ],
     imports: [
         BrowserModule,
@@ -51,6 +56,7 @@ import { UserPageComponent } from './Screens/user-page/user-page.component';
         MatGridListModule,
         MatCardModule,
         MatProgressSpinnerModule,
+        MatListModule
     ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
