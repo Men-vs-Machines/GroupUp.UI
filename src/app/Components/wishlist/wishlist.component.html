@@ -6,7 +6,13 @@
     <mat-card-content>
       <div [formGroup]="wishListForm">
         <ng-container formArrayName="items">
-          <ng-container *ngFor="let item of items.controls; let i = index">
+          <ng-container
+            *ngFor="
+              let item of items.controls;
+              let i = index;
+              trackBy: trackByFn
+            "
+          >
             <div [formGroupName]="i">
               <mat-form-field>
                 <mat-label>Wishlist item</mat-label>
@@ -27,7 +33,7 @@
             </div>
           </ng-container>
         </ng-container>
-        {{ wishListForm.value | json }}
+        {{ wishListForm.getRawValue() | json }}
       </div>
       <button mat-raised-button color="warn" (click)="addWishListItem()">
         Add

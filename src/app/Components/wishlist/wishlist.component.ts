@@ -33,7 +33,9 @@ export class WishlistComponent implements OnInit {
   }
 
   addWishListItem() {
-    this.items.push(this.fb.control(''));
+    let items = this.wishListForm.get('items') as FormArray;
+    items.push(this.fb.control({value: '', disabled: false}));
+    console.log(this.wishListForm.getRawValue());
   }
 
   enableForm(index) {
@@ -42,5 +44,17 @@ export class WishlistComponent implements OnInit {
 
   disableForm(index) {
     this.items.controls[index].disable();
+  }
+
+  removeWishListItem(index) {
+    this.items.removeAt(index);
+  }
+
+  saveWishList() {
+    console.log(this.wishListForm.getRawValue());
+  }
+
+  trackByFn(index, item) {
+    return index;
   }
 }
