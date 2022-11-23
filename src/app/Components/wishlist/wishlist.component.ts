@@ -22,13 +22,13 @@ export class WishlistComponent implements OnInit {
 
   ngOnInit(): void {
     this.user$ = this.authService.user$;
-    this.user$.pipe(
-      map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true})))
-    )
-    .subscribe(data => {
-      this.wishListForm = this.fb.group({
-        items: this.fb.array(data)
-      })
+    this.user$.subscribe(user => {
+      this.items.clear();
+      user.wishList.forEach(item => {
+        this.items.push(this.fb.group({
+          value: item,
+        }));
+      });
     });
   }
 
