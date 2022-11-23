@@ -1,38 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap, take, takeUntil, finalize, switchMap } from 'rxjs';
 import { User } from 'src/app/Models/user';
 import { AuthService } from 'src/app/Services/auth.service';
-import { FormGroup } from '@angular/forms';
+import { DataProviderService } from 'src/app/Services/data-provider.service';
+import { Destroyable } from 'src/app/Utils/destroyable';
+import {z} from 'zod';
 
 @Component({
   selector: 'app-wishlist',
   templateUrl: './wishlist.component.html',
   styleUrls: ['./wishlist.component.scss']
 })
-export class WishlistComponent implements OnInit {
+export class WishlistComponent extends Destroyable {
   user$: Observable<User>;
   wishListForm = this.fb.group({
     items: this.fb.array([])
   });
 
+  wishListSaving = false;
+
   get items() {
     return this.wishListForm.controls['items'] as FormArray;
   }
 
-  constructor(private authService: AuthService, private fb: FormBuilder) { }
+  constructor(private authService: AuthService, private fb: FormBuilder, private dataProvider: DataProviderService){
+    super();
+  } 
 
   ngOnInit(): void {
     this.user$ = this.authService.user$;
     this.user$.pipe(
-      map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true})))
+      map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true}))),
+      takeUntil(this.destroy$)
     )
     .subscribe(data => this.wishListForm.setControl('items', this.fb.array(data)));
   }
 
   addWishListItem() {
     this.items.push(this.fb.control(''));
-    console.log(this.wishListForm.getRawValue());
   }
 
   enableForm(index) {
@@ -43,15 +49,23 @@ export class WishlistComponent implements OnInit {
     this.items.controls[index].disable();
   }
 
-  removeWishListItem(index) {
+  removeWishlistItem(index) {
     this.items.removeAt(index);
   }
 
   saveWishList() {
-    console.log(this.wishListForm.getRawValue());
+    this.wishListSaving = true;
+    this.user$.pipe(
+      tap(user => user.wishList = this.wishListForm.getRawValue().items),
+      switchMap(user => this.dataProvider.updateUser(user)),
+      finalize(() => this.wishListSaving = false),
+      take(1))
+    .subscribe({
+      next: () => this.items.disable(),
+    })
   }
 
   trackByFn(index, item) {
-    return index;
+    return item;
   }
 }

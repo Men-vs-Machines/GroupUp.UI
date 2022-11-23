@@ -17,3 +17,19 @@
   display: flex;
   cursor: pointer;
 }
+
+.button-container > * {
+  margin: 0 1rem;
+}
+
+.wishlist-card {
+  max-width: 40vw;
+  min-width: 5vw;
+
+  .mat-card-header,
+  .mat-card-content,
+  .mat-card-actions {
+    display: flex;
+    justify-content: center;
+  }
+}

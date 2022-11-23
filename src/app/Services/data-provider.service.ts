@@ -27,4 +27,8 @@ export class DataProviderService {
   public createUser(user: User) {
     return this.httpClient.post(`${environment.groupUpBff}/users`, user);
   }
+
+  public updateUser(user: User) {
+    return this.httpClient.put(`${environment.groupUpBff}/users`, user);
+  }
 }

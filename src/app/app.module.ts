@@ -26,6 +26,7 @@ import { UserPageComponent } from './Screens/user-page/user-page.component';
 import { MatListModule } from "@angular/material/list";
 import { WishlistComponent } from './Components/wishlist/wishlist.component';
 import { SignInComponent } from './Components/sign-in/sign-in.component';
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { SignInComponent } from './Components/sign-in/sign-in.component';
         MatGridListModule,
         MatCardModule,
         MatProgressSpinnerModule,
-        MatListModule
+        MatListModule,
+        MatProgressBarModule,
     ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
