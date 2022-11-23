@@ -12,7 +12,9 @@ import { FormGroup } from '@angular/forms';
 })
 export class WishlistComponent implements OnInit {
   user$: Observable<User>;
-  wishListForm: FormGroup;
+  wishListForm = this.fb.group({
+    items: this.fb.array([])
+  });
 
   get items() {
     return this.wishListForm.controls['items'] as FormArray;
@@ -22,19 +24,14 @@ export class WishlistComponent implements OnInit {
 
   ngOnInit(): void {
     this.user$ = this.authService.user$;
-    this.user$.subscribe(user => {
-      this.items.clear();
-      user.wishList.forEach(item => {
-        this.items.push(this.fb.group({
-          value: item,
-        }));
-      });
-    });
+    this.user$.pipe(
+      map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true})))
+    )
+    .subscribe(data => this.wishListForm.setControl('items', this.fb.array(data)));
   }
 
   addWishListItem() {
-    let items = this.wishListForm.get('items') as FormArray;
-    items.push(this.fb.control({value: '', disabled: false}));
+    this.items.push(this.fb.control(''));
     console.log(this.wishListForm.getRawValue());
   }
 

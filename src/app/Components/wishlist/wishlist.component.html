@@ -13,15 +13,16 @@
               trackBy: trackByFn
             "
           >
-            <div [formGroupName]="i">
+            <div>
               <mat-form-field>
                 <mat-label>Wishlist item</mat-label>
                 <span class="input-align">
                   <input
                     matInput
-                    value="{{ item.value }}"
-                    [disabled]="item.disabled"
+                    value="{{ item.value.value }}"
+                    [formControlName]="i"
                   />
+                  <span>{{ item.value.value | json }}</span>
                   <ng-container *ngIf="item.disabled; else disable">
                     <mat-icon (click)="enableForm(i)">lock_open</mat-icon>
                   </ng-container>
