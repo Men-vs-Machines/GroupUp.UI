@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { GroupUpApiService } from '../../Services/group-up-api.service';
 import { AuthService } from '../../Services/auth.service';
 import { filter, map, takeUntil, tap } from 'rxjs';
 import { Group } from '../../Models/group';
-import { User } from '../../Models/user';
 import { SnackbarService } from '../../Services/snackbar.service';
 import { Router } from '@angular/router';
 import { Utility } from 'src/app/Utils/utility';
@@ -23,7 +21,6 @@ export class GroupCreationComponent extends Utility implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private secretSantaApi: GroupUpApiService,
     private auth: AuthService,
     protected override angularFireAuth: AngularFireAuth,
     private snackbarService: SnackbarService,
@@ -34,7 +31,7 @@ export class GroupCreationComponent extends Utility implements OnInit {
     
     this.groupForm = this.fb.group({
       name: [null, [Validators.required]],
-      users: [null],
+      userIds: [null],
     });
   }
 
@@ -50,7 +47,7 @@ export class GroupCreationComponent extends Utility implements OnInit {
       )
       .subscribe((user) => {
         this.groupForm.patchValue({
-          users: [user],
+          userIds: [user.id],
         });
       });
   }
@@ -70,6 +67,8 @@ export class GroupCreationComponent extends Utility implements OnInit {
       });
       return;
     }
+
+    console.log(group.value);
 
     const newGroup = this.mapToGroup(group);
     console.log(newGroup);

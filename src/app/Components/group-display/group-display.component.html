@@ -3,7 +3,7 @@
     Welcome to {{ group.name }}!
   </h1>
   <ul>
-    <ng-container *ngIf="user$ | async as users">
+    <!-- <ng-container *ngIf="users$ | async as users">
       <mat-card *ngFor="let user of users" class="user-card">
         <mat-card-header>
           <mat-card-title>{{ user.displayName }}</mat-card-title>
@@ -17,6 +17,6 @@
           </ul>
         </mat-card-content>
       </mat-card>
-    </ng-container>
+    </ng-container> -->
   </ul>
 </ng-container>

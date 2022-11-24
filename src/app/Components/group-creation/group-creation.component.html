@@ -15,36 +15,6 @@
       </mat-form-field>
     </p>
 
-    <!-- <div formArrayName="users">
-      <h2>Add a Group Member</h2>
-      <button
-        (click)="addUser()"
-        type="button"
-        color="primary"
-        mat-raised-button
-      >
-        Add Member
-      </button>
-
-      <div
-        *ngFor="let quantity of users.controls; let i = index"
-        [formGroupName]="i"
-      >
-        <ng-container *ngIf="!quantity.value.hidden">
-          <mat-form-field appearance="outline">
-            <mat-label>Group Member Name</mat-label>
-            <input
-              formControlName="displayName"
-              matInput
-              placeholder="Who are they?"
-            />
-          </mat-form-field>
-          <button (click)="removeUser(i)" color="warn" mat-raised-button>
-            Remove
-          </button>
-        </ng-container>
-      </div>
-    </div> -->
     <button color="accent" mat-raised-button (click)="onSubmit(groupForm)">
       Submit
     </button>

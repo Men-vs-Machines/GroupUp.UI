@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GroupUpApiService } from '../../Services/group-up-api.service';
 import { Destroyable } from '../../Utils/destroyable';
-import { filter, map, Observable, shareReplay, Subject, takeUntil, tap } from 'rxjs';
+import { filter, map, Observable, shareReplay, Subject, takeUntil, tap, mergeMap, switchMap, from } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
 import { AuthService } from 'src/app/Services/auth.service';
@@ -17,7 +17,7 @@ import { User } from 'src/app/Models/user';
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
   group$ = new Observable<Group>();
-  user$ = new Observable<User[]>();
+  user$: Observable<User[]>;
   
   constructor(
     private _activatedRoute: ActivatedRoute,
@@ -32,9 +32,11 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     const groupId = this._activatedRoute.snapshot.params['id'];
 
     this.group$ = this.dataProviderService.getGroup(groupId).pipe(shareReplay(1));
-    this.user$ = this.group$.pipe(
-      filter(group => !!group?.users),
-      map(group => group.users)
-    );
+    this.group$.pipe(
+      filter(group => !!group?.userIds),
+      map(group => group.userIds),
+      mergeMap(userIds => from(userIds)),
+      mergeMap(userId => this.dataProviderService.getUser(userId)))
+
   }
 }

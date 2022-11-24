@@ -70,7 +70,7 @@ export class AuthService {
   public createUserWithEmailAndPassword$(user: User): Observable<unknown> {
     const newUser = mapUserToEmailSignIn(user);
 
-    return from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, newUser.password))
+    return from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, user.password))
       .pipe(
         map((userCredential) => ({ ...newUser, id: userCredential.user.uid })),
         switchMap((user) => this.dataProviderService.createUser(user))
