@@ -20,7 +20,7 @@
     </button>
   </mat-card>
 
-  <ng-container *ngIf="!(this.user$ | async); else wishList">
+  <ng-container *ngIf="!(this.user$ | async); else signedIn">
     <mat-card>
       <div [formGroup]="signInForm">
         <mat-form-field appearance="outline">
@@ -57,7 +57,10 @@
     </mat-card>
   </ng-container>
 
-  <ng-template #wishList>
-    <app-wishlist></app-wishlist>
+  <ng-template #signedIn>
+    <div class="home-container">
+      <app-wishlist></app-wishlist>
+      <app-group-list></app-group-list>
+    </div>
   </ng-template>
 </div>

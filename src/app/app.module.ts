@@ -27,6 +27,7 @@ import { MatListModule } from "@angular/material/list";
 import { WishlistComponent } from './Components/wishlist/wishlist.component';
 import { SignInComponent } from './Components/sign-in/sign-in.component';
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import { GroupListComponent } from './Components/group-list/group-list.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
     UserPageComponent,
     WishlistComponent,
     SignInComponent,
+    GroupListComponent,
   ],
     imports: [
         BrowserModule,

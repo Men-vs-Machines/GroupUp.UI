@@ -2,8 +2,8 @@
   <span>Group Up</span>
   <span style="display: flex; flex-grow: 1"></span>
 
-  <ng-container *ngIf="user$ | async as user">
-    <span [routerLink]="userPageLink" style="cursor: pointer">
+  <ng-container *ngIf="user$ | async as user; else spinner">
+    <span [routerLink]="['/']" style="cursor: pointer">
       Hello, {{ user.displayName ?? user.email }}!
     </span>
     <button
@@ -16,4 +16,7 @@
       Sign out
     </button>
   </ng-container>
+  <ng-template #spinner>
+    <mat-spinner color="accent" diameter="50"></mat-spinner>
+  </ng-template>
 </mat-toolbar>

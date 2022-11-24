@@ -3,7 +3,10 @@
     color: purple;
   }
   mat-form-field {
-    .mat-hint, input, ::placeholder, .mat-form-field-label {
+    .mat-hint,
+    input,
+    ::placeholder,
+    .mat-form-field-label {
       color: white;
     }
   }
@@ -25,5 +28,31 @@
 }
 
 .container > * {
-    margin: 2rem 0;
+  margin: 2rem 0;
+}
+
+$container-margin: 2rem;
+
+@media screen and (max-width: 600px) {
+  .home-container {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    ::ng-deep > * {
+      margin: 1rem;
+      flex-grow: 1;
+    }
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .home-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    ::ng-deep > * {
+      margin: $container-margin;
+      flex-grow: 1;
+    }
+  }
 }
