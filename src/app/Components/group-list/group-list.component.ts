@@ -5,6 +5,7 @@ import { User } from 'src/app/Models/user';
 import { Destroyable } from 'src/app/Utils/destroyable';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { Group } from 'src/app/Models/group';
+import { UserService } from 'src/app/Services/user.service';
 
 @Component({
   selector: 'app-group-list',
@@ -12,20 +13,21 @@ import { Group } from 'src/app/Models/group';
   styleUrls: ['./group-list.component.scss']
 })
 export class GroupListComponent extends Destroyable implements OnInit {
-  
   groups$: Observable<Group[]>;
   
-  constructor(private authService: AuthService, private dataProvider: DataProviderService) {
+  constructor(private authService: AuthService, private dataProvider: DataProviderService, private userService: UserService) {
     super();
    }
 
   ngOnInit(): void {
-    this.groups$ = this.authService.user$
+    this.groups$ = this.userService.user$
       .pipe(
         filter(user => !!user?.groups),
         map(user => user.groups),
         mergeMap(groups => forkJoin(groups.map(group => this.dataProvider.getGroup(group)))),
         takeUntil(this.destroy$)
       )
+
+    this.groups$.subscribe(groups => console.log(groups));
   }
 }

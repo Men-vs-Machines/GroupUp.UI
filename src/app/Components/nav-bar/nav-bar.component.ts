@@ -5,6 +5,7 @@ import firebase from "firebase/compat";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { SnackbarService } from "../../Services/snackbar.service";
 import { User } from 'src/app/Models/user';
+import { UserService } from './../../Services/user.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -20,11 +21,11 @@ export class NavBarComponent implements OnInit {
 
   public user$ = new BehaviorSubject<User>(null);
 
-  constructor( private authService: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService ) {
+  constructor( private authService: AuthService, private formBuilder: FormBuilder, private snackbarService: SnackbarService, private userService: UserService) {
   }
 
   ngOnInit(): void {
-    this.authService.user$.subscribe(user => this.user$.next(user));
+    this.userService.user$.subscribe(user => this.user$.next(user));
   }
 
   signOut() {

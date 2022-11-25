@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Destroyable } from '../../Utils/destroyable';
-import { BehaviorSubject, debounceTime, fromEvent } from 'rxjs';
+import { BehaviorSubject, debounceTime, fromEvent, Observable } from 'rxjs';
 import {
   BreakpointObserver,
   Breakpoints,
@@ -22,6 +22,7 @@ import { AuthService } from 'src/app/Services/auth.service';
 import firebase from 'firebase/compat';
 import firebaseUser = firebase.User;
 import { User, UserSchema } from './../../Models/user';
+import { UserService } from 'src/app/Services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -31,15 +32,14 @@ import { User, UserSchema } from './../../Models/user';
 export class HomeComponent extends Destroyable implements OnInit {
   columnSize: number;
   signInForm: FormGroup;
-  user$: BehaviorSubject<firebaseUser> = new BehaviorSubject<firebaseUser>(
-    null
-  );
+  user$: Observable<User>;
 
   constructor(
     private breakPoints: BreakpointObserver,
     private fb: FormBuilder,
-    private authService: AuthService
-  ) {
+    private authService: AuthService,
+    private userService: UserService
+    ) {
     super();
 
     this.signInForm = this.fb.group({
@@ -56,7 +56,7 @@ export class HomeComponent extends Destroyable implements OnInit {
         // this.mediaBreakpoint$.next(evt.target.innerWidth);
       });
 
-    this.authService.user$.subscribe(this.user$);
+    this.user$ = this.userService.user$;
 
     this.breakPoints
       .observe([

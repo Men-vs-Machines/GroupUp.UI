@@ -28,15 +28,12 @@ import firebaseUser = Firebase.User;
 import { User } from '../Models/user';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { ReplaySubject } from 'rxjs';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private _user$ = new ReplaySubject<User>(1);
-  get user$(): Observable<User> {
-    return this._user$.asObservable();
-  }
 
   private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   get token$(): Observable<string> {
@@ -45,7 +42,8 @@ export class AuthService {
 
   constructor(
     private angularAuth: AngularFireAuth,
-    private dataProviderService: DataProviderService
+    private dataProviderService: DataProviderService,
+    private userService: UserService
   ) {
     this.angularAuth.authState
       .pipe(
@@ -103,7 +101,7 @@ export class AuthService {
     return of(null).pipe(
       tap(() => {
         this._token$.next(null);
-        this._user$.next(null);
+        this.userService.setUser = null;
         localStorage.removeItem('jwt');
       }),
       switchMap(() => from(this.angularAuth.signOut()))
@@ -122,7 +120,7 @@ export class AuthService {
       token: from(firebaseUser.getIdToken()),
     }).pipe(
       tap(({ user, token }) => {
-        this._user$.next(user);
+        this.userService.setUser = user;
         this._token$.next(token);
         localStorage.setItem('jwt', token);
       })

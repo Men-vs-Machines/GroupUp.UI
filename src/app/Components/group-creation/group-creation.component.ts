@@ -9,6 +9,7 @@ import { Utility } from 'src/app/Utils/utility';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { GroupSchema } from './../../Models/group';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { UserService } from 'src/app/Services/user.service';
 
 @Component({
   selector: 'app-group-creation',
@@ -25,7 +26,8 @@ export class GroupCreationComponent extends Utility implements OnInit {
     protected override angularFireAuth: AngularFireAuth,
     private snackbarService: SnackbarService,
     protected override router: Router,
-    private dataProviderService: DataProviderService
+    private dataProviderService: DataProviderService,
+    private userService: UserService
   ) {
     super(router, angularFireAuth);
     
@@ -40,7 +42,7 @@ export class GroupCreationComponent extends Utility implements OnInit {
   }
 
   ngOnInit() {
-    this.auth.user$
+    this.userService.user$
       .pipe(
         filter((user) => !!user),
         takeUntil(this.destroy$)
@@ -68,19 +70,20 @@ export class GroupCreationComponent extends Utility implements OnInit {
       return;
     }
 
-    console.log(group.value);
-
     const newGroup = this.mapToGroup(group);
-    console.log(newGroup);
 
     this.dataProviderService
       .createGroup(newGroup)
       .pipe(
         filter((id) => !!id),
-        tap((x) => console.log('Group Creation: ', x)),
         takeUntil(this.destroy$)
       )
-      .subscribe((id) => this.router.navigate(['/group', id]));
+      .subscribe({
+        next: (id) => {
+          this.userService.fetchUser();
+          this.router.navigate(['/group', id]);
+        }
+      });
   }
 
   private mapToGroup(group: FormGroup): Group {

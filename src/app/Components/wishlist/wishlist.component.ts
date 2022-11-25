@@ -4,6 +4,7 @@ import { map, Observable, tap, take, takeUntil, finalize, switchMap } from 'rxjs
 import { User } from 'src/app/Models/user';
 import { AuthService } from 'src/app/Services/auth.service';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
+import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from 'src/app/Utils/destroyable';
 import {z} from 'zod';
 
@@ -24,12 +25,12 @@ export class WishlistComponent extends Destroyable {
     return this.wishListForm.controls['items'] as FormArray;
   }
 
-  constructor(private authService: AuthService, private fb: FormBuilder, private dataProvider: DataProviderService){
+  constructor(private authService: AuthService, private fb: FormBuilder, private dataProvider: DataProviderService, private userService: UserService) {
     super();
   } 
 
   ngOnInit(): void {
-    this.user$ = this.authService.user$;
+    this.user$ = this.userService.user$;
     this.user$.pipe(
       map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true}))),
       takeUntil(this.destroy$)
@@ -61,7 +62,7 @@ export class WishlistComponent extends Destroyable {
       finalize(() => this.wishListSaving = false),
       take(1))
     .subscribe({
-      next: () => this.items.disable(),
+      next: () => this.items.disable()
     })
   }
 
