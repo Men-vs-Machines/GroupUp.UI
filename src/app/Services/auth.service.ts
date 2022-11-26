@@ -20,6 +20,7 @@ import {
   shareReplay,
   repeatWhen,
   retryWhen,
+  defer,
 } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
@@ -47,14 +48,11 @@ export class AuthService {
     this.angularAuth.authState
       .pipe(
         tap((user) => console.log('auth state changed', user)),
-        // Reafactor to user iif()
-        switchMap((firebaseUser: firebaseUser | null) => {
-          if (!!firebaseUser) {
-            return this.onUserSignIn$(firebaseUser);
-          }
-
-          return this.onUserSignOut$();
-        })
+        switchMap((user: Firebase.User | null) =>
+          defer(() =>
+            !!user ? this.onUserSignIn$(user) : this.onUserSignOut$()
+          )
+        )
       )
       .subscribe();
   }

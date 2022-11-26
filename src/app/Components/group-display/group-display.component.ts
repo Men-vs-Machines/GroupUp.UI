@@ -15,6 +15,10 @@ import {
   forkJoin,
   combineLatest,
   of,
+  filter,
+  merge,
+  takeUntil,
+  take,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -30,10 +34,9 @@ import { UserService } from 'src/app/Services/user.service';
   styleUrls: ['./group-display.component.scss'],
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
-  group$ = new Observable<Group>();
+  group$: Observable<Group>;
   users$: Observable<User[]>;
-  canPickPartner$: Observable<boolean>;
-  
+  includesUser$: Observable<boolean>;
 
   constructor(
     private _activatedRoute: ActivatedRoute,
@@ -52,16 +55,46 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       .getGroup(groupId)
       .pipe(shareReplay(1));
 
-    this.users$ = combineLatest([this.userService.user$, this.group$]).pipe(
-      mergeMap(([user, { userIds }]) => this.userFetchCheck(user, userIds))
+    this.includesUser$ = combineLatest([
+      this.userService.user$,
+      this.group$,
+    ]).pipe(
+      // For some reason 'includes' is throwing...
+      map(([{ id }, { userIds }]) => !!userIds.find((userId) => userId === id))
     );
 
-    this.canPickPartner$ = combineLatest([this.userService.user$, this.group$]).pipe(
-      map(([user, group]) =>  group.userIds.length > 1 && user.partners.some(p => p.groupId === group.id && !p.partnerId))
-    ); 
+    this.users$ = combineLatest([this.userService.user$, this.group$]).pipe(
+      filter(([user, _]) => !!user),
+      mergeMap(([user, { userIds }]) =>
+        this.checkIfShouldGetUser(user, userIds)
+      ),
+      shareReplay(1)
+    );
   }
 
-  private userFetchCheck(user: User, userIds: string[]) {
+  joinGroup() {
+    combineLatest([this.userService.user$, this.group$])
+      .pipe(
+        map(([user, group]) => this.newUser(user, group)),
+        mergeMap(({ user, group }) =>
+          forkJoin([
+            this.dataProviderService.updateUser(user),
+            this.dataProviderService.updateGroup(group),
+          ])
+        )
+      )
+      // Add logic to re-fetch group on complete
+      .subscribe();
+  }
+
+  private newUser(user: User, group: Group): { user: User; group: Group } {
+    return {
+      user: { ...user, groups: [...user.groups, group.id] },
+      group: { ...group, userIds: [...group.userIds, user.id] },
+    };
+  }
+
+  private userFetchCheck(user: User, userIds: string[]): Observable<User[]> {
     const users = userIds.filter((id) => user.id !== id);
     return users.length > 0
       ? forkJoin(users.map((id) => this.dataProviderService.getUser(id)))

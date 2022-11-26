@@ -6,11 +6,13 @@ import {
   ReplaySubject,
   takeUntil,
   switchMap,
-  take,
   combineLatest,
   map,
-  tap,
-  shareReplay,
+  filter,
+  iif,
+  of,
+  defer,
+  mergeMap,
 } from 'rxjs';
 import { User } from 'src/app/Models/user';
 import { Destroyable } from 'src/app/Utils/destroyable';
@@ -37,7 +39,11 @@ export class UserService extends Destroyable {
     combineLatest([this.userTriggerSub, this.af.authState])
       .pipe(
         map(([_, user]) => user),
-        switchMap((user) => this.dataProviderService.getUser(user.uid)),
+        mergeMap((user) =>
+          defer(() =>
+            !!user ? this.dataProviderService.getUser(user.uid) : of(null)
+          )
+        ),
         takeUntil(this.destroy$)
       )
       .subscribe({
