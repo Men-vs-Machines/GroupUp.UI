@@ -1,20 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Observable,
   shareReplay,
-  Subject,
   tap,
   mergeMap,
-  switchMap,
   forkJoin,
   combineLatest,
   of,
   map,
   filter,
-  merge,
-  takeUntil,
   take,
+  from,
+  toArray,
+  BehaviorSubject,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -30,8 +29,8 @@ import { UserService } from 'src/app/Services/user.service';
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
   group$: Observable<Group>;
-  // TODO: Make behavior subjuct so we can push new users to it
-  users$: Observable<User[]>;
+  private userSub = new BehaviorSubject<User[]>(null);
+  users$ = this.userSub.asObservable();
   userViewLogic$: Observable<{ includes: boolean; user: User }>;
 
   constructor(
@@ -52,6 +51,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       .getGroup(groupId)
       .pipe(shareReplay(1));
 
+    // TODO: Refactor to next in values after user joining group
     this.userViewLogic$ = combineLatest([
       this.userService.user$,
       this.group$,
@@ -63,19 +63,18 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       })
     );
 
-    this.users$ = combineLatest([this.userService.user$, this.group$]).pipe(
-      filter(([user, _]) => !!user),
-      mergeMap(([user, { userIds }]) =>
-        this.checkIfShouldGetUser(user, userIds)
-      ),
-      shareReplay(1)
-    );
-
-    this.users$.subscribe((data) => console.log(data));
+    combineLatest([this.userService.user$, this.group$])
+      .pipe(
+        filter(([user, _]) => !!user),
+        mergeMap(([user, { userIds }]) =>
+          this.checkIfShouldGetUser(user, userIds)
+        )
+      )
+      .subscribe(this.userSub);
   }
 
   joinGroup() {
-    forkJoin([this.updateUserAndGroup(), this.addUserToUsers()])
+    forkJoin([this.addUserToUsers(), this.updateUserAndGroup()])
       .pipe(take(1))
       .subscribe();
   }
@@ -94,8 +93,10 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   private addUserToUsers() {
     return combineLatest([this.userService.user$, this.users$]).pipe(
-      map(([user, users]) => [...users, user])
-      // TODO: Do we need to use a tap here
+      map(([user, users]) => [...users, user]),
+      take(1),
+      // Moving the take below this tap causes infinte loop. has to be a better way to do this...
+      tap((users) => this.userSub.next(users))
     );
   }
 
@@ -110,9 +111,16 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     user: User,
     userIds: string[]
   ): Observable<User[]> {
-    const users = userIds.filter((id) => user.id !== id);
-    return users.length > 0
-      ? forkJoin(users.map((id) => this.dataProviderService.getUser(id)))
-      : of([user]);
+    // TODO: Optimize this to not fetch current user
+    return of(userIds.filter((id) => id !== user.id)).pipe(
+      mergeMap((ids) =>
+        ids.length > 0
+          ? from(userIds).pipe(
+              mergeMap((id) => this.userService.getUser(id)),
+              toArray()
+            )
+          : of([user])
+      )
+    );
   }
 }
