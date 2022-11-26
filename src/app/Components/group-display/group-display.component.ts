@@ -11,6 +11,10 @@ import {
   combineLatest,
   of,
   map,
+  filter,
+  merge,
+  takeUntil,
+  take,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -26,8 +30,9 @@ import { UserService } from 'src/app/Services/user.service';
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
   group$: Observable<Group>;
+  // TODO: Make behavior subjuct so we can push new users to it
   users$: Observable<User[]>;
-  includesUser$: Observable<boolean>;
+  userViewLogic$: Observable<{ includes: boolean; user: User }>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -47,42 +52,64 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       .getGroup(groupId)
       .pipe(shareReplay(1));
 
-    this.includesUser$ = combineLatest([
+    this.userViewLogic$ = combineLatest([
       this.userService.user$,
       this.group$,
     ]).pipe(
+      filter(([user, _]) => !!user),
       // For some reason 'includes' is throwing...
-      map(([{ id }, { userIds }]) => !!userIds.find((userId) => userId === id))
+      map(([user, { userIds }]) => {
+        return { includes: !!userIds.find((id) => id === user.id), user };
+      })
     );
 
     this.users$ = combineLatest([this.userService.user$, this.group$]).pipe(
-      mergeMap(([user, { userIds }]) => this.userFetchCheck(user, userIds))
+      filter(([user, _]) => !!user),
+      mergeMap(([user, { userIds }]) =>
+        this.checkIfShouldGetUser(user, userIds)
+      ),
+      shareReplay(1)
     );
+
+    this.users$.subscribe((data) => console.log(data));
   }
 
   joinGroup() {
-    combineLatest([this.userService.user$, this.group$])
-      .pipe(
-        map(([user, group]) => this.newUser(user, group)),
-        mergeMap(({ user, group }) =>
-          forkJoin([
-            this.dataProviderService.updateUser(user),
-            this.dataProviderService.updateGroup(group),
-          ])
-        )
-      )
-      // Add logic to re-fetch group on complete
+    forkJoin([this.updateUserAndGroup(), this.addUserToUsers()])
+      .pipe(take(1))
       .subscribe();
   }
 
-  private newUser(user: User, group: Group): { user: User; group: Group } {
+  private updateUserAndGroup() {
+    return combineLatest([this.userService.user$, this.group$]).pipe(
+      map(([user, group]) => this.newUserGroup(user, group)),
+      mergeMap(({ user, group }) =>
+        forkJoin([
+          this.dataProviderService.updateUser(user),
+          this.dataProviderService.updateGroup(group),
+        ])
+      )
+    );
+  }
+
+  private addUserToUsers() {
+    return combineLatest([this.userService.user$, this.users$]).pipe(
+      map(([user, users]) => [...users, user])
+      // TODO: Do we need to use a tap here
+    );
+  }
+
+  private newUserGroup(user: User, group: Group): { user: User; group: Group } {
     return {
       user: { ...user, groups: [...user.groups, group.id] },
       group: { ...group, userIds: [...group.userIds, user.id] },
     };
   }
 
-  private userFetchCheck(user: User, userIds: string[]): Observable<User[]> {
+  private checkIfShouldGetUser(
+    user: User,
+    userIds: string[]
+  ): Observable<User[]> {
     const users = userIds.filter((id) => user.id !== id);
     return users.length > 0
       ? forkJoin(users.map((id) => this.dataProviderService.getUser(id)))

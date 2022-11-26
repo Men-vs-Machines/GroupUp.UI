@@ -3,27 +3,43 @@
     Welcome to {{ group.name }}!
   </h1>
   <ng-container *ngIf="users$ | async as users">
-    <ul>
-      <ng-container *ngIf="!(includesUser$ | async)">
-        <li>
-          <button mat-raised-button color="primary" (click)="joinGroup()">
-            Join Group
-          </button>
-        </li>
+    <div class="cards">
+      <ng-container *ngFor="let user of users">
+        <!-- TODO: Refactor card to shared component -->
+        <mat-card class="card">
+          <mat-card-header>
+            <mat-card-title>{{ user.displayName }}</mat-card-title>
+            <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-list>
+              <mat-list-item>
+                <span matListItemTitle>Wishlist items</span>
+              </mat-list-item>
+              <mat-list-item *ngFor="let item of user.wishList">
+                {{ item }}
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
       </ng-container>
-      <mat-card *ngFor="let user of users" class="user-card">
-        <mat-card-header>
-          <mat-card-title>{{ user.displayName }}</mat-card-title>
-          <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <ul *ngFor="let item of user.wishList">
-            <li>
-              {{ item }}
-            </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
-    </ul>
+      <ng-container *ngIf="userViewLogic$ | async as vm">
+        <ng-container *ngIf="!vm.includes">
+          <div>
+            <mat-card class="card">
+              <mat-card-header>
+                <mat-card-title>{{ vm.user.displayName }}</mat-card-title>
+                <mat-card-subtitle>{{ vm.user.email }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="joinGroup()">
+                  Join Group
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
   </ng-container>
 </ng-container>
