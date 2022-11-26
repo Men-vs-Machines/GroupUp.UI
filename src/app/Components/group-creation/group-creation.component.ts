@@ -30,7 +30,7 @@ export class GroupCreationComponent extends Utility implements OnInit {
     private userService: UserService
   ) {
     super(router, angularFireAuth);
-    
+
     this.groupForm = this.fb.group({
       name: [null, [Validators.required]],
       userIds: [null],
@@ -76,13 +76,11 @@ export class GroupCreationComponent extends Utility implements OnInit {
       .createGroup(newGroup)
       .pipe(
         filter((id) => !!id),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
+        tap(() => this.userService.fetchUser())
       )
       .subscribe({
-        next: (id) => {
-          this.userService.fetchUser();
-          this.router.navigate(['/group', id]);
-        }
+        next: (id) => this.router.navigate(['/group', id]),
       });
   }
 
@@ -91,6 +89,6 @@ export class GroupCreationComponent extends Utility implements OnInit {
       console.error('Group Creation: Invalid Group');
     }
 
-    return GroupSchema.parse(group.value); 
+    return GroupSchema.parse(group.value);
   }
 }

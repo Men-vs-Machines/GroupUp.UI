@@ -2,8 +2,8 @@
   <h1 class="mat-display-2" style="color: whitesmoke">
     Welcome to {{ group.name }}!
   </h1>
-  <ul>
-    <ng-container *ngIf="users$ | async as users">
+  <ng-container *ngIf="users$ | async as users">
+    <ul>
       <mat-card *ngFor="let user of users" class="user-card">
         <mat-card-header>
           <mat-card-title>{{ user.displayName }}</mat-card-title>
@@ -22,6 +22,6 @@
           </button>
         </mat-card-actions>
       </mat-card>
-    </ng-container>
-  </ul>
+    </ul>
+  </ng-container>
 </ng-container>

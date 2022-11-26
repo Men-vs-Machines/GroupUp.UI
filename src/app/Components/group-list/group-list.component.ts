@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './../../Services/auth.service';
 import { Observable, takeUntil, map, filter, mergeMap, shareReplay, forkJoin } from 'rxjs';
-import { User } from 'src/app/Models/user';
 import { Destroyable } from 'src/app/Utils/destroyable';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { Group } from 'src/app/Models/group';
@@ -27,7 +26,5 @@ export class GroupListComponent extends Destroyable implements OnInit {
         mergeMap(groups => forkJoin(groups.map(group => this.dataProvider.getGroup(group)))),
         takeUntil(this.destroy$)
       )
-
-    this.groups$.subscribe(groups => console.log(groups));
   }
 }
