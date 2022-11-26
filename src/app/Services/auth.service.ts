@@ -19,7 +19,7 @@ import {
   map,
   shareReplay,
   repeatWhen,
-  retryWhen
+  retryWhen,
 } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
@@ -34,7 +34,6 @@ import { UserService } from './user.service';
   providedIn: 'root',
 })
 export class AuthService {
-
   private _token$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   get token$(): Observable<string> {
     return this._token$.asObservable();
@@ -68,11 +67,15 @@ export class AuthService {
   public createUserWithEmailAndPassword$(user: User): Observable<unknown> {
     const newUser = mapUserToEmailSignIn(user);
 
-    return from(this.angularAuth.createUserWithEmailAndPassword(newUser.email, user.password))
-      .pipe(
-        map((userCredential) => ({ ...newUser, id: userCredential.user.uid })),
-        switchMap((user) => this.dataProviderService.createUser(user))
+    return from(
+      this.angularAuth.createUserWithEmailAndPassword(
+        newUser.email,
+        user.password
       )
+    ).pipe(
+      map((userCredential) => ({ ...newUser, id: userCredential.user.uid })),
+      switchMap((user) => this.dataProviderService.createUser(user))
+    );
   }
 
   // displayName will be mapped to email
@@ -112,8 +115,7 @@ export class AuthService {
     firebaseUser: firebaseUser | null
   ): Observable<{ user: User; token: string }> {
     return forkJoin({
-      user: this.dataProviderService.getUser(firebaseUser.uid)
-      .pipe(
+      user: this.userService.getUser(firebaseUser.uid).pipe(
         // To keep auth state in sync, we need to make sure that the user is created in the backend
         retryWhen((errors) => errors.pipe(delay(500), take(3)))
       ),
