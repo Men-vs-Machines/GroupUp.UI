@@ -23,7 +23,7 @@
           </mat-card-content>
         </mat-card>
       </ng-container>
-      <ng-container *ngIf="userViewLogic$ | async as vm">
+      <ng-container *ngIf="vm$ | async as vm">
         <ng-container *ngIf="!vm.includes">
           <div>
             <mat-card class="card">

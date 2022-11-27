@@ -31,7 +31,8 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   group$: Observable<Group>;
   private userSub = new BehaviorSubject<User[]>(null);
   users$ = this.userSub.asObservable();
-  userViewLogic$: Observable<{ includes: boolean; user: User }>;
+  // ViewModel
+  vm$: Observable<{ includes: boolean; user: User }>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -51,15 +52,11 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       .getGroup(groupId)
       .pipe(shareReplay(1));
 
-    // TODO: Refactor to next in values after user joining group
-    this.userViewLogic$ = combineLatest([
-      this.userService.user$,
-      this.group$,
-    ]).pipe(
-      filter(([user, _]) => !!user),
-      // For some reason 'includes' is throwing...
-      map(([user, { userIds }]) => {
-        return { includes: !!userIds.find((id) => id === user.id), user };
+    // TODO: Refactor to use vm for entire template
+    this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
+      filter(([user]) => !!user),
+      map(([user, users]) => {
+        return { includes: !!users.find((u) => u.id === user.id), user };
       })
     );
 
