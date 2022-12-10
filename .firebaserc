@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "secretsantatest-4e7fc": {
+      "hosting": {
+        "GroupUp-UI": [
+          "secretsantatest-4e7fc"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "secretsantatest-4e7fc"
+  }
+}

@@ -1,0 +1,22 @@
+<mat-toolbar color="primary" style="margin-bottom: 2rem">
+  <span>Group Up</span>
+  <span style="display: flex; flex-grow: 1"></span>
+
+  <ng-container *ngIf="user$ | async as user; else spinner">
+    <span [routerLink]="['/']" style="cursor: pointer">
+      Hello, {{ user.displayName ?? user.email }}!
+    </span>
+    <button
+      color="warn"
+      mat-raised-button
+      type="button"
+      (click)="signOut()"
+      style="margin-left: 1rem"
+    >
+      Sign out
+    </button>
+  </ng-container>
+  <ng-template #spinner>
+    <mat-spinner color="accent" diameter="50"></mat-spinner>
+  </ng-template>
+</mat-toolbar>

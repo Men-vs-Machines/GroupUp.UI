@@ -1,0 +1,22 @@
+<ng-container *ngIf="group$ | async as group">
+  <h1 class="mat-display-2" style="color: whitesmoke">
+    Welcome to {{ group.name }}!
+  </h1>
+  <ul>
+    <ng-container *ngIf="users$ | async as users">
+      <mat-card *ngFor="let user of users" class="user-card">
+        <mat-card-header>
+          <mat-card-title>{{ user.displayName }}</mat-card-title>
+          <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul *ngFor="let item of user.wishList">
+            <li>
+              {{ item }}
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </ul>
+</ng-container>

@@ -1,0 +1,25 @@
+<div class="container">
+  <h1>Create a group</h1>
+
+  <div [formGroup]="groupForm" (keydown.enter)="$event.preventDefault()">
+    <p>
+      <mat-form-field appearance="outline">
+        <mat-label>Group Name</mat-label>
+        <input
+          formControlName="name"
+          matInput
+          placeholder="Choose a name"
+          required="required"
+          autocomplete="no"
+        />
+      </mat-form-field>
+    </p>
+
+    <button color="accent" mat-raised-button (click)="onSubmit(groupForm)">
+      Submit
+    </button>
+  </div>
+
+  <br />
+  {{ this.groupForm.value | json }}
+</div>

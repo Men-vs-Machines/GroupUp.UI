@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'GroupUp-UI'`, () => {
+  it(`should have as title 'SecretSanta.UI'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('GroupUp-UI');
+    expect(app.title).toEqual('SecretSanta.UI');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('GroupUp-UI app is running!');
+    expect(compiled.querySelector('.content span')?.textContent).toContain('SecretSanta.UI app is running!');
   });
 });

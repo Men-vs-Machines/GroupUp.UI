@@ -1,0 +1,20 @@
+<ng-container *ngIf="groups$ | async as groups">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Your groups</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item
+          [routerLink]="['/group', group.id]"
+          *ngFor="let group of groups"
+          style="cursor: pointer"
+        >
+          <mat-icon mat-list-icon>group</mat-icon>
+          <h4 mat-line>{{ group.name }}</h4>
+          <p mat-line>{{ group | json }}</p>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

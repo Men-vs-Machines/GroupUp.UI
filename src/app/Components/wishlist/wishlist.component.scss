@@ -1,0 +1,35 @@
+::ng-deep .mat-focused .mat-form-field-label {
+  /*change color of label*/
+  color: rgb(177, 168, 255) !important;
+}
+
+::ng-deep.mat-form-field-underline {
+  /*change color of underline*/
+  background-color: rgb(177, 168, 255) !important;
+}
+
+::ng-deep.mat-form-field-ripple {
+  /*change color of underline when focused*/
+  background-color: rgb(177, 168, 255) !important;
+}
+
+.input-align {
+  display: flex;
+  cursor: pointer;
+}
+
+.button-container > * {
+  margin: 0 1rem;
+}
+
+.wishlist-card {
+  max-width: 40vw;
+  min-width: 5vw;
+
+  .mat-card-header,
+  .mat-card-content,
+  .mat-card-actions {
+    display: flex;
+    justify-content: center;
+  }
+}
