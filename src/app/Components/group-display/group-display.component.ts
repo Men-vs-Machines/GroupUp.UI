@@ -19,6 +19,7 @@ import { UserService } from 'src/app/Services/user.service';
 export class GroupDisplayComponent extends Utility implements OnInit {
   group$ = new Observable<Group>();
   users$: Observable<User[]>;
+  canPickPartner$: Observable<boolean>;
   
   constructor(
     private _activatedRoute: ActivatedRoute,
@@ -35,13 +36,22 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     const groupId = this._activatedRoute.snapshot.params['id'];
 
     this.group$ = this.dataProviderService.getGroup(groupId).pipe(shareReplay(1));
+    
     this.users$ = combineLatest([this.userService.user$, this.group$]).pipe(
       mergeMap(([user, {userIds}]) => this.userFetchCheck(user, userIds)),
     );
+
+    this.canPickPartner$ = combineLatest([this.userService.user$, this.group$]).pipe(
+      map(([user, group]) =>  group.userIds.length > 1 && user.partners.some(p => p.groupId === group.id && !p.partnerId))
+    ); 
   }
 
   private userFetchCheck(user: User, userIds: string[]) {
     const users = userIds.filter(id => user.id !== id);
     return users.length > 0 ? forkJoin(users.map(id => this.dataProviderService.getUser(id))) : of([user]);   
+  }
+
+  generatePartner() {
+    
   }
 }

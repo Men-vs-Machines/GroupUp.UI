@@ -16,6 +16,11 @@
             </li>
           </ul>
         </mat-card-content>
+        <mat-card-actions *ngIf="canPickPartner$ | async">
+          <button mat-button color="primary" (click)="generatePartner()">
+            Get a partner
+          </button>
+        </mat-card-actions>
       </mat-card>
     </ng-container>
   </ul>
