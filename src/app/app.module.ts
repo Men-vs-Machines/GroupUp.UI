@@ -31,7 +31,6 @@ import { GroupListComponent } from './Components/group-list/group-list.component
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth,getAuth } from '@angular/fire/auth';
 import { provideFirestore,getFirestore } from '@angular/fire/firestore';
-import {MatRippleModule} from '@angular/material/core'; 
 
 @NgModule({
   declarations: [
@@ -65,7 +64,6 @@ import {MatRippleModule} from '@angular/material/core';
         MatProgressSpinnerModule,
         MatListModule,
         MatProgressBarModule,
-        MatRippleModule,
         provideFirebaseApp(() => initializeApp(environment.firebase)),
         provideAuth(() => getAuth()),
         provideFirestore(() => getFirestore()),

@@ -6,15 +6,10 @@
     <mat-card-content>
       <mat-list>
         <mat-list-item
-          mat-ripple
           [routerLink]="['/group', group.id]"
           *ngFor="let group of groups"
           style="cursor: pointer"
         >
-          <span style="display: flex; align-items: center">
-            <mat-icon mat-list-icon>group</mat-icon>
-            <h4 style="margin: 0 0 0 5px">{{ group.name }}</h4>
-          </span>
           <mat-icon mat-list-icon>group</mat-icon>
           <h4 mat-line>{{ group.name }}</h4>
         </mat-list-item>

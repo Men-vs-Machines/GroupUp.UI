@@ -49,6 +49,7 @@ $container-margin: 2rem;
   .home-container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     ::ng-deep > * {
       margin: $container-margin;
       flex-grow: 1;

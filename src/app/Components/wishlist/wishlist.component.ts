@@ -57,7 +57,8 @@ export class WishlistComponent extends Destroyable {
   saveWishList() {
     this.wishListSaving = true;
     this.user$.pipe(
-      tap(user => user.wishList = this.wishListForm.getRawValue().items as string[]),
+      //@ts-ignore
+      tap(user => user.wishList = this.wishListForm.getRawValue().items),
       switchMap(user => this.dataProvider.updateUser(user)),
       finalize(() => this.wishListSaving = false),
       take(1))

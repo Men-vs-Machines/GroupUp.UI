@@ -6,22 +6,28 @@ import { Observable, tap } from 'rxjs';
 import { User } from 'src/app/Models/user';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DataProviderService {
-
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {}
 
   public createGroup(group: Group): Observable<string> {
-    return this.httpClient.post<string>(`${environment.groupUpBff}/groups`, group);
+    return this.httpClient.post<string>(
+      `${environment.groupUpBff}/groups`,
+      group
+    );
   }
 
   public getGroup(groupId: string): Observable<Group> {
-    return this.httpClient.get<Group>(`${environment.groupUpBff}/groups/${groupId}`);
+    return this.httpClient.get<Group>(
+      `${environment.groupUpBff}/groups/${groupId}`
+    );
   }
 
   public getUser(userId: string): Observable<User> {
-    return this.httpClient.get<Group>(`${environment.groupUpBff}/users/${userId}`);
+    return this.httpClient.get<Group>(
+      `${environment.groupUpBff}/users/${userId}`
+    );
   }
 
   public createUser(user: User) {
@@ -30,5 +36,9 @@ export class DataProviderService {
 
   public updateUser(user: User) {
     return this.httpClient.put(`${environment.groupUpBff}/users`, user);
+  }
+
+  public updateGroup(group: Group) {
+    return this.httpClient.put(`${environment.groupUpBff}/groups`, group);
   }
 }

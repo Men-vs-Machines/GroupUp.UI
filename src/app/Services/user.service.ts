@@ -56,6 +56,6 @@ export class UserService extends Destroyable {
   }
 
   public getUser(id: string) {
-    return this.dataProviderService.getUser(id).pipe(shareReplay(1));
+    return this.dataProviderService.getUser(id);
   }
 }
