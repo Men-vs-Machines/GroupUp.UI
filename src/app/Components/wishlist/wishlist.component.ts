@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SimpleChange } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
 import { map, Observable, tap, take, takeUntil, finalize, switchMap } from 'rxjs';
 import { User } from 'src/app/Models/user';
@@ -6,7 +6,6 @@ import { AuthService } from 'src/app/Services/auth.service';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from 'src/app/Utils/destroyable';
-import {z} from 'zod';
 
 @Component({
   selector: 'app-wishlist',
