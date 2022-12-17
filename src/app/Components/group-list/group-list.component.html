@@ -10,8 +10,10 @@
           *ngFor="let group of groups"
           style="cursor: pointer"
         >
-          <mat-icon mat-list-icon>group</mat-icon>
-          <h4 mat-line>{{ group.name }}</h4>
+          <div matRipple style="display: flex">
+            <mat-icon mat-list-icon>group</mat-icon>
+            <h4 style="margin: 0 0 0 5px">{{ group.name }}</h4>
+          </div>
         </mat-list-item>
       </mat-list>
     </mat-card-content>

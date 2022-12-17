@@ -22,7 +22,7 @@ export class GroupListComponent extends Destroyable implements OnInit {
     this.groups$ = this.userService.user$
       .pipe(
         filter(user => !!user?.groups),
-        map(user => user.groups),
+        map(user => Array.from(user.groups)),
         mergeMap(groups => forkJoin(groups.map(group => this.dataProvider.getGroup(group)))),
         takeUntil(this.destroy$)
       )

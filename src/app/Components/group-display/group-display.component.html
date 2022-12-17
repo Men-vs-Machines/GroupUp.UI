@@ -21,6 +21,11 @@
               </mat-list-item>
             </mat-list>
           </mat-card-content>
+          <mat-card-actions *ngIf="shouldShowPartnerButton$(user) | async">
+            <button mat-raised-button color="primary" (click)="findPartner()">
+              Find a Partner
+            </button>
+          </mat-card-actions>
         </mat-card>
       </ng-container>
       <ng-container *ngIf="vm$ | async as vm">

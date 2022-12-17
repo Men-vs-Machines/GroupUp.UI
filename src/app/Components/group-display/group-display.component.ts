@@ -29,8 +29,8 @@ import { UserService } from 'src/app/Services/user.service';
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
   group$: Observable<Group>;
-  private userSub = new BehaviorSubject<User[]>(null);
-  users$ = this.userSub.asObservable();
+  private usersSub = new BehaviorSubject<User[]>(null);
+  users$ = this.usersSub.asObservable();
   // ViewModel
   vm$: Observable<{ includes: boolean; user: User }>;
 
@@ -65,15 +65,80 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         filter(([user, _]) => !!user),
         mergeMap(([user, { userIds }]) =>
           this.checkIfShouldGetUser(user, userIds)
-        )
+        ),
+        map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName)))
       )
-      .subscribe(this.userSub);
+      .subscribe(this.usersSub);
+  }
+
+  shouldShowPartnerButton$(displayUser: User): Observable<boolean> {
+    return combineLatest([this.userService.user$, this.group$, this.users$]).pipe(
+      map(
+        ([user, group, users]) =>
+          !!user
+          && user.id === displayUser.id
+          && this.doUsersHavePartners(user, users, group)
+          && (!user.partners || !user.partners.find((p) => p.groupId === group.id))
+      ),
+      shareReplay(1)
+    );
   }
 
   joinGroup() {
     forkJoin([this.addUserToUsers(), this.updateUserAndGroup()])
       .pipe(take(1))
       .subscribe();
+  }
+
+  // TODO: Make this readable
+  findPartner() {
+    combineLatest([this.userService.user$, this.group$, this.users$]).pipe(
+      take(1),
+      map(([user, group, users]) => {
+        const otherUsers = users.filter((u) => u.id !== user.id);
+        const eligiblePartners = otherUsers.filter((user) => !user.partners 
+        || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id));
+        
+        if (eligiblePartners.length === 0) {
+          throw new Error('No eligible partners');
+        }
+
+        // set partner on both users
+        const partner = eligiblePartners[Math.floor(Math.random() * eligiblePartners.length)];
+        const partnerUser = { ...partner, partners: [...partner.partners, { groupId: group.id, userId: user.id }] };
+        const userWithPartner = { ...user, partners: [...user.partners, { groupId: group.id, userId: partner.id }] };
+        return { userWithPartner, partnerUser, users };
+      }),
+      mergeMap(({userWithPartner, partnerUser, users}) => forkJoin([
+        this.dataProviderService.updateUser(userWithPartner),
+        this.dataProviderService.updateUser(partnerUser),
+        of({users: [...users, userWithPartner, partnerUser], partner: partnerUser, newUser: userWithPartner})
+      ])),
+    ).subscribe({
+      next: ([, , updatedUsers]) => {
+        const {users, partner, newUser} = updatedUsers;
+        // find and replace the users in the users array with the user and also the user with the partner
+        console.log(users);
+        const updatedUsersArray = users.reduce((acc, user) => {
+          if (user.id === newUser.id) {
+            acc.push(newUser);
+            return acc;
+          }
+
+          if (user.id === partner.id) {
+            acc.push(partner);
+            return acc;
+          }
+          
+          acc.push(user);
+          return acc;
+        }, []);
+
+        console.log(updatedUsersArray)
+        this.userService.setUser = newUser;
+        this.usersSub.next(updatedUsersArray);
+      }
+    });
   }
 
   private updateUserAndGroup() {
@@ -93,14 +158,17 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       map(([user, users]) => [...users, user]),
       take(1),
       // Moving the take below this tap causes infinte loop. has to be a better way to do this...
-      tap((users) => this.userSub.next(users))
+      tap((users) => this.usersSub.next(users))
     );
   }
 
   private newUserGroup(user: User, group: Group): { user: User; group: Group } {
+    const dedupedGroups = [...new Set([...user.groups, group.id])];
+    const dedupedUserIds = [...new Set([...group.userIds, user.id])];
+
     return {
-      user: { ...user, groups: [...user.groups, group.id] },
-      group: { ...group, userIds: [...group.userIds, user.id] },
+      user: { ...user, groups: dedupedGroups },
+      group: { ...group, userIds: dedupedUserIds },
     };
   }
 
@@ -119,5 +187,11 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           : of([user])
       )
     );
+  }
+
+  private doUsersHavePartners(user: User, users: User[], group: Group): boolean {
+    const otherUsers = users.filter((u) => u.id !== user.id);
+    // Check the number of other users in the group that have partners in this group, if it's even, then we can show the button
+    return otherUsers.filter((user) => user.partners && user.partners.find((p) => p.groupId === group.id)).length % 2 === 0;
   }
 }
