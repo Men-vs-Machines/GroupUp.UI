@@ -21,6 +21,7 @@ import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { User } from 'src/app/Models/user';
 import { UserService } from 'src/app/Services/user.service';
+import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-group-display',
@@ -33,6 +34,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   users$ = this.usersSub.asObservable();
   // ViewModel
   vm$: Observable<{ includes: boolean; user: User }>;
+  partner$: Observable<User>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -45,6 +47,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   }
 
   ngOnInit(): void {
+
     // TODO: Refactor to use streams
     const groupId = this.activatedRoute.snapshot.params['id'];
 
@@ -69,6 +72,26 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName)))
       )
       .subscribe(this.usersSub);
+  }
+
+  hasPartner$(viewUser: User): Observable<boolean> {
+    return combineLatest([this.userService.user$, this.group$]).pipe(
+      filter(([user, _]) => !!user && user.id === viewUser.id),
+      map(([user, group]) => {
+        if (!!user && !!user.partners && user.partners.length > 0) {
+          return user.partners.some(p => p.groupId === group.id);
+        }
+        return false;
+      }));
+  }
+
+  getPartner$(currentUser: User): Observable<User> {
+    return combineLatest([this.userService.user$, this.users$, this.group$]).pipe(
+      filter(([user, , ]) => user.id === currentUser.id),
+      map(([user, users, group]) => {
+        const partner = user.partners.find(p => p.groupId === group.id);
+        return users.find(u => u.id === partner.userId);
+      }));
   }
 
   shouldShowPartnerButton$(displayUser: User): Observable<boolean> {
@@ -98,7 +121,8 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         const otherUsers = users.filter((u) => u.id !== user.id);
         const eligiblePartners = otherUsers.filter((user) => !user.partners 
         || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id));
-        
+       
+        console.log('eligible partners', eligiblePartners, 'other users', otherUsers)
         if (eligiblePartners.length === 0) {
           throw new Error('No eligible partners');
         }
@@ -112,13 +136,12 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       mergeMap(({userWithPartner, partnerUser, users}) => forkJoin([
         this.dataProviderService.updateUser(userWithPartner),
         this.dataProviderService.updateUser(partnerUser),
-        of({users: [...users, userWithPartner, partnerUser], partner: partnerUser, newUser: userWithPartner})
+        of({users: users, partner: partnerUser, newUser: userWithPartner})
       ])),
     ).subscribe({
       next: ([, , updatedUsers]) => {
         const {users, partner, newUser} = updatedUsers;
         // find and replace the users in the users array with the user and also the user with the partner
-        console.log(users);
         const updatedUsersArray = users.reduce((acc, user) => {
           if (user.id === newUser.id) {
             acc.push(newUser);
@@ -134,7 +157,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           return acc;
         }, []);
 
-        console.log(updatedUsersArray)
         this.userService.setUser = newUser;
         this.usersSub.next(updatedUsersArray);
       }
@@ -191,7 +213,9 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   private doUsersHavePartners(user: User, users: User[], group: Group): boolean {
     const otherUsers = users.filter((u) => u.id !== user.id);
+    const eligiblePartners = otherUsers.filter((user) => !user.partners 
+      || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id)); 
     // Check the number of other users in the group that have partners in this group, if it's even, then we can show the button
-    return otherUsers.filter((user) => user.partners && user.partners.find((p) => p.groupId === group.id)).length % 2 === 0;
+    return eligiblePartners.length > 0;
   }
 }

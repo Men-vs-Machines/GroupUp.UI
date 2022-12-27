@@ -12,6 +12,9 @@
             <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
+            <ng-container *ngIf="hasPartner$(user) | async">
+              <h2>Partner: {{ (getPartner$(user) | async)?.displayName }}</h2>
+            </ng-container>
             <mat-list>
               <mat-list-item>
                 <span matListItemTitle>Wishlist items</span>
