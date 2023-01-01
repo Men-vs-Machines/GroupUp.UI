@@ -21,7 +21,6 @@ import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { User } from 'src/app/Models/user';
 import { UserService } from 'src/app/Services/user.service';
-import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-group-display',
@@ -33,7 +32,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   private usersSub = new BehaviorSubject<User[]>(null);
   users$ = this.usersSub.asObservable();
   // ViewModel
-  vm$: Observable<{ includes: boolean; user: User }>;
+  vm$: Observable<{ userInGroup: boolean; user: User }>;
   partner$: Observable<User>;
 
   constructor(
@@ -55,21 +54,26 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       .getGroup(groupId)
       .pipe(shareReplay(1));
 
+    this.users$.subscribe((users) => console.log('users from the source obs', users));
+
     // TODO: Refactor to use vm for entire template
     this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
       filter(([user]) => !!user),
       map(([user, users]) => {
-        return { includes: !!users.find((u) => u.id === user.id), user };
+        return { userInGroup: !!users.find((u) => u.id === user.id), user };
       })
     );
 
+    // UserIds coming from the group do not contain the newest user
     combineLatest([this.userService.user$, this.group$])
       .pipe(
         filter(([user, _]) => !!user),
         mergeMap(([user, { userIds }]) =>
           this.checkIfShouldGetUser(user, userIds)
         ),
-        map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName)))
+        tap(users => console.log('before sorted obs', users)),
+        map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
+        tap(users => console.log('sorted obs', users)),
       )
       .subscribe(this.usersSub);
   }
@@ -87,7 +91,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   getPartner$(currentUser: User): Observable<User> {
     return combineLatest([this.userService.user$, this.users$, this.group$]).pipe(
-      filter(([user, , ]) => user.id === currentUser.id),
+      filter(([user, , ]) => !!user && user.id === currentUser.id),
       map(([user, users, group]) => {
         const partner = user.partners.find(p => p.groupId === group.id);
         return users.find(u => u.id === partner.userId);
@@ -102,8 +106,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           && user.id === displayUser.id
           && this.doUsersHavePartners(user, users, group)
           && (!user.partners || !user.partners.find((p) => p.groupId === group.id))
-      ),
-      shareReplay(1)
+      )
     );
   }
 
@@ -122,7 +125,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         const eligiblePartners = otherUsers.filter((user) => !user.partners 
         || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id));
        
-        console.log('eligible partners', eligiblePartners, 'other users', otherUsers)
         if (eligiblePartners.length === 0) {
           throw new Error('No eligible partners');
         }
@@ -198,6 +200,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     user: User,
     userIds: string[]
   ): Observable<User[]> {
+    console.log('checkIfShouldGetUser', user, userIds)
     // TODO: Optimize this to not fetch current user
     return of(userIds.filter((id) => id !== user.id)).pipe(
       mergeMap((ids) =>
