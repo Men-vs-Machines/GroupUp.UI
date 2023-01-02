@@ -28,7 +28,8 @@ import { UserService } from 'src/app/Services/user.service';
   styleUrls: ['./group-display.component.scss'],
 })
 export class GroupDisplayComponent extends Utility implements OnInit {
-  group$: Observable<Group>;
+  private groupSub = new BehaviorSubject<Group>(null);
+  group$ = this.groupSub.asObservable();
   private usersSub = new BehaviorSubject<User[]>(null);
   users$ = this.usersSub.asObservable();
   // ViewModel
@@ -46,15 +47,15 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   }
 
   ngOnInit(): void {
-
     // TODO: Refactor to use streams
     const groupId = this.activatedRoute.snapshot.params['id'];
 
-    this.group$ = this.dataProviderService
+    this.dataProviderService
       .getGroup(groupId)
-      .pipe(shareReplay(1));
-
-    this.users$.subscribe((users) => console.log('users from the source obs', users));
+      .pipe(shareReplay(1))
+      .subscribe({
+        next: (group) => this.groupSub.next(group)
+      });
 
     // TODO: Refactor to use vm for entire template
     this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
@@ -65,15 +66,14 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     );
 
     // UserIds coming from the group do not contain the newest user
-    combineLatest([this.userService.user$, this.group$])
+    combineLatest([this.userService.user$, this.group$.pipe(filter(g => !!g))])
       .pipe(
         filter(([user, _]) => !!user),
+        tap(([user, group]) => console.log('user and group', user, group)),
         mergeMap(([user, { userIds }]) =>
           this.checkIfShouldGetUser(user, userIds)
         ),
-        tap(users => console.log('before sorted obs', users)),
         map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
-        tap(users => console.log('sorted obs', users)),
       )
       .subscribe(this.usersSub);
   }
@@ -161,11 +161,12 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
         this.userService.setUser = newUser;
         this.usersSub.next(updatedUsersArray);
+        this.groupSub.next({ ...this.groupSub.value, userIds: [...this.groupSub.value.userIds, newUser.id] });
       }
     });
   }
 
-  private updateUserAndGroup() {
+  private updateUserAndGroup(): Observable<[Object, Object]> {
     return combineLatest([this.userService.user$, this.group$]).pipe(
       map(([user, group]) => this.newUserGroup(user, group)),
       mergeMap(({ user, group }) =>
@@ -200,7 +201,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     user: User,
     userIds: string[]
   ): Observable<User[]> {
-    console.log('checkIfShouldGetUser', user, userIds)
     // TODO: Optimize this to not fetch current user
     return of(userIds.filter((id) => id !== user.id)).pipe(
       mergeMap((ids) =>

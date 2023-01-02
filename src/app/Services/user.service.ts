@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { inspect } from '@rxjs-insights/devtools';
 import {
   Observable,
   Subject,
@@ -35,6 +36,8 @@ export class UserService extends Destroyable {
     private af: AngularFireAuth
   ) {
     super();
+
+    inspect(this.userSub);
 
     combineLatest([this.userTriggerSub, this.af.authState])
       .pipe(
