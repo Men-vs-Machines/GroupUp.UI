@@ -69,7 +69,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     combineLatest([this.userService.user$, this.group$.pipe(filter(g => !!g))])
       .pipe(
         filter(([user, _]) => !!user),
-        tap(([user, group]) => console.log('user and group', user, group)),
         mergeMap(([user, { userIds }]) =>
           this.checkIfShouldGetUser(user, userIds)
         ),
@@ -159,9 +158,9 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           return acc;
         }, []);
 
+        this.groupSub.next({ ...this.groupSub.value, userIds: [...this.groupSub.value.userIds, newUser.id] });
         this.userService.setUser = newUser;
         this.usersSub.next(updatedUsersArray);
-        this.groupSub.next({ ...this.groupSub.value, userIds: [...this.groupSub.value.userIds, newUser.id] });
       }
     });
   }
