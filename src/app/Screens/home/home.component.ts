@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Destroyable } from '../../Utils/destroyable';
-import { BehaviorSubject, debounceTime, fromEvent, Observable } from 'rxjs';
+import { debounceTime, Observable, fromEvent, of } from 'rxjs';
 import {
   BreakpointObserver,
   Breakpoints,
@@ -9,23 +9,18 @@ import {
 import {
   AbstractControl,
   FormBuilder,
-  FormControl,
   FormGroup,
-  ValidationErrors,
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { GroupUpApiService } from '../../Services/group-up-api.service';
+import { HttpStatusCode } from '@angular/common/http';
 import { AuthService } from 'src/app/Services/auth.service';
-import firebase from 'firebase/compat';
-import firebaseUser = firebase.User;
 import { User, UserSchema } from './../../Models/user';
 import { UserService } from 'src/app/Services/user.service';
-import { Firestore } from '@angular/fire/firestore';
-import { DuplicateUsernameValidator } from './../../Utils/validators/sign-up-validator';
 import { DataProviderService } from './../../Services/data-provider.service';
+import { catchError } from 'rxjs';
+import { SnackbarService } from './../../Services/snackbar.service';
+import { MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home',
@@ -42,14 +37,18 @@ export class HomeComponent extends Destroyable implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private userService: UserService,
-    private dataProvider: DataProviderService
+    private snackbar: SnackbarService
     ) {
     super();
 
     this.signInForm = this.fb.group({
-      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator, DuplicateUsernameValidator.username(dataProvider, this.user$)])],
+      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator])],
       password: ['', Validators.compose([Validators.required, Validators.minLength(6)])],
     });
+  }
+
+  get displayName() {
+    return this.signInForm.get('displayName')
   }
 
   ngOnInit(): void {
@@ -115,6 +114,17 @@ export class HomeComponent extends Destroyable implements OnInit {
     }
     
     const user: User = UserSchema.parse(form.value);
-    this.authService.createUserWithEmailAndPassword$(user).subscribe();
+    this.authService.createUserWithEmailAndPassword$(user).pipe(
+      catchError(err => {
+        if (err.message.includes('email')) {
+          this.snackbar.open('This username is already taken. Please pick another', 'close', {
+            horizontalPosition: 'center',
+            verticalPosition: 'top'
+          });
+        }
+
+        return of(null);
+      })
+    ).subscribe();
   }
 }

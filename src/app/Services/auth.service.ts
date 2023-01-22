@@ -30,6 +30,7 @@ import { User } from '../Models/user';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { ReplaySubject } from 'rxjs';
 import { UserService } from './user.service';
+import { catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
