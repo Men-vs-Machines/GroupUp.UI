@@ -14,7 +14,6 @@ import {
   from,
   toArray,
   BehaviorSubject,
-  reduce,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -22,6 +21,7 @@ import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { User } from 'src/app/Models/user';
 import { UserService } from 'src/app/Services/user.service';
+import { sort } from './../../Utils/rxjs-operators/sort';
 
 @Component({
   selector: 'app-group-display',
@@ -206,7 +206,8 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           ? from(userIds).pipe(
               mergeMap((id) => this.userService.getUser(id)),
               toArray(),
-              map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
+              // map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
+              sort('displayName'),
               map(users => users.reduce((acc, currUser) => {
                 if (currUser.id === user.id) {
                   acc.unshift(currUser);
