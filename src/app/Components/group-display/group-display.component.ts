@@ -14,6 +14,7 @@ import {
   from,
   toArray,
   BehaviorSubject,
+  reduce,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -65,14 +66,12 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       })
     );
 
-    // UserIds coming from the group do not contain the newest user
     combineLatest([this.userService.user$, this.group$.pipe(filter(g => !!g))])
       .pipe(
         filter(([user, _]) => !!user),
         mergeMap(([user, { userIds }]) =>
           this.checkIfShouldGetUser(user, userIds)
         ),
-        map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
       )
       .subscribe(this.usersSub);
   }
@@ -206,7 +205,18 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         ids.length > 0
           ? from(userIds).pipe(
               mergeMap((id) => this.userService.getUser(id)),
-              toArray()
+              toArray(),
+              map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
+              map(users => users.reduce((acc, currUser) => {
+                if (currUser.id === user.id) {
+                  acc.unshift(currUser);
+                  return acc;
+                }
+
+                acc.push(currUser);
+                return acc;
+              }, [])),
+              tap(data => console.log(data))
             )
           : of([user])
       )
