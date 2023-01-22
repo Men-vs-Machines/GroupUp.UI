@@ -206,7 +206,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
           ? from(userIds).pipe(
               mergeMap((id) => this.userService.getUser(id)),
               toArray(),
-              // map(users => users.sort((a, b) => a.displayName.localeCompare(b.displayName))),
               sort('displayName'),
               map(users => users.reduce((acc, currUser) => {
                 if (currUser.id === user.id) {
@@ -216,8 +215,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
                 acc.push(currUser);
                 return acc;
-              }, [])),
-              tap(data => console.log(data))
+              }, []))
             )
           : of([user])
       )

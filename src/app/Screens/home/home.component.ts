@@ -23,6 +23,9 @@ import firebase from 'firebase/compat';
 import firebaseUser = firebase.User;
 import { User, UserSchema } from './../../Models/user';
 import { UserService } from 'src/app/Services/user.service';
+import { Firestore } from '@angular/fire/firestore';
+import { DuplicateUsernameValidator } from './../../Utils/validators/sign-up-validator';
+import { DataProviderService } from './../../Services/data-provider.service';
 
 @Component({
   selector: 'app-home',
@@ -38,12 +41,13 @@ export class HomeComponent extends Destroyable implements OnInit {
     private breakPoints: BreakpointObserver,
     private fb: FormBuilder,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private dataProvider: DataProviderService
     ) {
     super();
 
     this.signInForm = this.fb.group({
-      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator])],
+      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator, DuplicateUsernameValidator.username(dataProvider, this.user$)])],
       password: ['', Validators.compose([Validators.required, Validators.minLength(6)])],
     });
   }
