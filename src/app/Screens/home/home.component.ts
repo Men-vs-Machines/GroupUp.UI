@@ -119,7 +119,8 @@ export class HomeComponent extends Destroyable implements OnInit {
         if (err.message.includes('email')) {
           this.snackbar.open('This username is already taken. Please pick another', 'close', {
             horizontalPosition: 'center',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            duration: 5000
           });
         }
 
