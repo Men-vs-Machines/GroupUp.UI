@@ -1,1 +1,40 @@
-<p>sign-in works!</p>
+<form>
+  <div class="login-container">
+    <div class="login-content">
+      <mat-toolbar class="login-toolbar" color="primary"
+        >Recipe Book</mat-toolbar
+      >
+      <mat-card>
+        <form>
+          <mat-form-field>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input
+              autofocus
+              type="text"
+              matInput
+              placeholder="Username"
+              formControlName="email"
+            />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <input
+              type="password"
+              autocomplete="false"
+              matInput
+              placeholder="Password"
+              formControlName="password"
+            />
+          </mat-form-field>
+
+          <button type="submit" mat-raised-button color="primary">LOGIN</button>
+        </form>
+        <span>
+          If You don't have a account yet please
+          <a routerLink="/register">REGISTER HERE</a></span
+        >
+      </mat-card>
+    </div>
+  </div>
+</form>

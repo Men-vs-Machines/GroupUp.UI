@@ -1,56 +1,77 @@
 <div class="container">
-  <mat-card>
-    <div class="mat-display-2" style="margin-bottom: 2rem">
-      Welcome to GroupUp
-    </div>
-    <p class="mat-title">
-      A website dedicated to creating a group based name picker (think Secret
-      Santa) without the need to make an account. No email, no third-party auth,
-      no trackers, no BS!
-    </p>
+  <div style="display: flex; justify-content: center">
+    <mat-card style="padding: 1rem; margin: 1rem; width: fit-content">
+      <div class="mat-headline-3" style="margin-bottom: 2rem">
+        Welcome to GroupUp
+      </div>
+      <p class="mat-h3">
+        A website dedicated to creating a group based name picker (think Secret
+        Santa) without the need to make an account. No email, no third-party
+        auth, no trackers, no BS!
+      </p>
 
-    <button
-      color="accent"
-      mat-raised-button
-      type="submit"
-      routerLink="/group"
-      *ngIf="!!(this.user$ | async)"
-    >
-      Create a group!
-    </button>
-  </mat-card>
+      <p class="mat-h3">
+        Because we dont use email, there will be no way to recover your account
+        if the information gets lost. Please keep track of your username and
+        password. If you lose it, you will have to create a new account.
+      </p>
+
+      <button
+        color="accent"
+        mat-raised-button
+        type="submit"
+        routerLink="/group"
+        *ngIf="!!(this.user$ | async)"
+      >
+        Create a group!
+      </button>
+    </mat-card>
+  </div>
 
   <ng-container *ngIf="!(this.user$ | async); else signedIn">
-    <mat-card>
+    <mat-card style="max-width: 30rem; margin: 5rem auto">
+      <mat-card-header
+        style="border-bottom: 1px solid; margin-left: 1rem; margin-right: 1rem"
+      >
+        <mat-card-title class="mat-h1">Sign In</mat-card-title>
+      </mat-card-header>
+
       <div [formGroup]="signInForm">
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input formControlName="displayName" matInput required="required" />
-          <mat-error *ngIf="displayName?.hasError('whitespace')">
-            No whitespace allowed
-          </mat-error>
-        </mat-form-field>
+        <mat-card-content style="display: grid; grid-auto-columns: 1fr">
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input formControlName="displayName" matInput required="required" />
+            <mat-error *ngIf="displayName?.hasError('whitespace')">
+              No whitespace allowed
+            </mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input
-            formControlName="password"
-            type="password"
-            matInput
-            required="required"
-          />
-          <mat-error *ngIf="signInForm.get('password')?.hasError('minlength')">
-            Pasword too short
-          </mat-error>
-        </mat-form-field>
-
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="onSubmit(signInForm)"
-        >
-          Enter
-        </button>
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input
+              formControlName="password"
+              type="password"
+              matInput
+              required="required"
+            />
+            <mat-error
+              *ngIf="signInForm.get('password')?.hasError('minlength')"
+            >
+              Pasword too short
+            </mat-error>
+          </mat-form-field>
+          <p>Dont have an account? Sign Up</p>
+        </mat-card-content>
+        <mat-card-actions style="justify-content: center">
+          <button
+            style="width: 100%"
+            mat-raised-button
+            color="primary"
+            (click)="onSubmit(signInForm)"
+          >
+            Enter
+          </button>
+        </mat-card-actions>
       </div>
     </mat-card>
   </ng-container>

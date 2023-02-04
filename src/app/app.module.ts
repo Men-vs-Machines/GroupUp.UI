@@ -32,6 +32,7 @@ import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth,getAuth } from '@angular/fire/auth';
 import { provideFirestore,getFirestore } from '@angular/fire/firestore';
 import { MatRippleModule } from '@angular/material/core';
+import { SignUpComponent } from './Components/sign-up/sign-up.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { MatRippleModule } from '@angular/material/core';
     WishlistComponent,
     SignInComponent,
     GroupListComponent,
+    SignUpComponent,
   ],
     imports: [
         BrowserModule,
