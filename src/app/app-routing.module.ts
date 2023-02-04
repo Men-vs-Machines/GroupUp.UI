@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './Screens/home/home.component';
-import { PageNotFoundComponent } from './Components/page-not-found/page-not-found.component';
 import { GroupCreationComponent } from './Components/group-creation/group-creation.component';
 import { GroupDisplayComponent } from './Components/group-display/group-display.component';
-import { RouteGuardService as RouteGuard } from './Security/route-guard.service';
+import { PageNotFoundComponent } from './Components/page-not-found/page-not-found.component';
+import { SignUpComponent } from './Components/sign-up/sign-up.component';
+import { HomeComponent } from './Screens/home/home.component';
 import { UserPageComponent } from './Screens/user-page/user-page.component';
+import { RouteGuardService as RouteGuard } from './Security/route-guard.service';
 
 const ROUTES: Routes = [
   {
@@ -25,12 +26,13 @@ const ROUTES: Routes = [
   },
   { path: '', redirectTo: '/index', pathMatch: 'full' },
   { path: 'index', component: HomeComponent },
+  {path: 'sign-up', component: SignUpComponent},
   { path: 'not-found', component: PageNotFoundComponent },
   { path: '**', redirectTo: '/not-found', pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(ROUTES)],
-  exports: [RouterModule],
+exports: [RouterModule],
 })
 export class AppRoutingModule {}

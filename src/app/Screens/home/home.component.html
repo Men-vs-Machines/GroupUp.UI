@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: center">
     <mat-card style="padding: 1rem; margin: 1rem; width: fit-content">
       <div class="mat-headline-3" style="margin-bottom: 2rem">
-        Welcome to GroupUp
+        Welcome to Group Up
       </div>
       <p class="mat-h3">
         A website dedicated to creating a group based name picker (think Secret
@@ -60,7 +60,10 @@
               Pasword too short
             </mat-error>
           </mat-form-field>
-          <p>Dont have an account? Sign Up</p>
+          <p>
+            Dont have an account?
+            <span style="cursor: pointer" routerLink="/sign-up">Sign Up</span>
+          </p>
         </mat-card-content>
         <mat-card-actions style="justify-content: center">
           <button

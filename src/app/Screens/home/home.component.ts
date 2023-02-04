@@ -1,26 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { Destroyable } from '../../Utils/destroyable';
-import { debounceTime, Observable, fromEvent, of } from 'rxjs';
 import {
   BreakpointObserver,
   Breakpoints,
-  BreakpointState,
+  BreakpointState
 } from '@angular/cdk/layout';
+import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
   ValidatorFn,
-  Validators,
+  Validators
 } from '@angular/forms';
-import { HttpStatusCode } from '@angular/common/http';
+import { catchError, debounceTime, fromEvent, Observable, of } from 'rxjs';
 import { AuthService } from 'src/app/Services/auth.service';
-import { User, UserSchema } from './../../Models/user';
 import { UserService } from 'src/app/Services/user.service';
-import { DataProviderService } from './../../Services/data-provider.service';
-import { catchError } from 'rxjs';
+import { Destroyable } from '../../Utils/destroyable';
+import { User, UserSchema } from './../../Models/user';
 import { SnackbarService } from './../../Services/snackbar.service';
-import { MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home',
