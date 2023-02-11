@@ -5,18 +5,12 @@ import {
 } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import {
-  AbstractControl,
-  FormBuilder,
   FormGroup,
-  ValidatorFn,
-  Validators
 } from '@angular/forms';
 import { catchError, debounceTime, fromEvent, Observable, of } from 'rxjs';
-import { AuthService } from 'src/app/Services/auth.service';
 import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from '../../Utils/destroyable';
 import { User, UserSchema } from './../../Models/user';
-import { SnackbarService } from './../../Services/snackbar.service';
 
 @Component({
   selector: 'app-home',
@@ -30,17 +24,9 @@ export class HomeComponent extends Destroyable implements OnInit {
 
   constructor(
     private breakPoints: BreakpointObserver,
-    private fb: FormBuilder,
-    private authService: AuthService,
     private userService: UserService,
-    private snackbar: SnackbarService
     ) {
     super();
-
-    this.signInForm = this.fb.group({
-      displayName: ['', Validators.compose([Validators.required, this.whiteSpaceValidator])],
-      password: ['', Validators.compose([Validators.required, Validators.minLength(6)])],
-    });
   }
 
   get displayName() {
@@ -87,41 +73,5 @@ export class HomeComponent extends Destroyable implements OnInit {
           this.columnSize = 3;
         }
       });
-  }
-
-  whiteSpaceValidator: ValidatorFn = (control: AbstractControl) => {
-    if (!control || !control.value) {
-      return null;
-    }
-    
-    const regex = new RegExp(/\s/g);
-    if (regex.test(control.value)) {
-      return { whitespace: true };
-    }
-
-    return null;
-  }
-
-
-  public async onSubmit(form: FormGroup) {
-    if (!UserSchema.safeParse(form.value).success || !form.valid) {
-      console.log('Invalid user');
-      return;
-    }
-    
-    const user: User = UserSchema.parse(form.value);
-    this.authService.createUserWithEmailAndPassword$(user).pipe(
-      catchError(err => {
-        if (err.message.includes('email')) {
-          this.snackbar.open('This username is already taken. Please pick another', 'close', {
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-            duration: 5000
-          });
-        }
-
-        return of(null);
-      })
-    ).subscribe();
   }
 }

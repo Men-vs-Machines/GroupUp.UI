@@ -77,6 +77,20 @@ export class AuthService {
     );
   }
 
+  public signInWithUsernameAndPassword$(user: User): Observable<unknown> {
+    const newUser = mapUserToEmailSignIn(user);
+
+    return from(
+      this.angularAuth.signInWithEmailAndPassword(
+        newUser.email,
+        user.password
+      )
+    ).pipe(
+      map((userCredential) => ({ ...newUser, id: userCredential.user.uid })),
+      switchMap((user) => this.dataProviderService.getUser(user.id))
+    );
+  }
+
   // displayName will be mapped to email
   public async signInUserWithEmailAndPassword(user: User) {
     return await this.angularAuth.signInWithEmailAndPassword(

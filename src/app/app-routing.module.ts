@@ -26,13 +26,13 @@ const ROUTES: Routes = [
   },
   { path: '', redirectTo: '/index', pathMatch: 'full' },
   { path: 'index', component: HomeComponent },
-  {path: 'sign-up', component: SignUpComponent},
+  { path: 'sign-up', component: SignUpComponent },
   { path: 'not-found', component: PageNotFoundComponent },
   { path: '**', redirectTo: '/not-found', pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(ROUTES)],
-exports: [RouterModule],
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

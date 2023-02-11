@@ -29,54 +29,7 @@
   </div>
 
   <ng-container *ngIf="!(this.user$ | async); else signedIn">
-    <mat-card style="max-width: 30rem; margin: 5rem auto">
-      <mat-card-header
-        style="border-bottom: 1px solid; margin-left: 1rem; margin-right: 1rem"
-      >
-        <mat-card-title class="mat-h1">Sign In</mat-card-title>
-      </mat-card-header>
-
-      <div [formGroup]="signInForm">
-        <mat-card-content style="display: grid; grid-auto-columns: 1fr">
-          <mat-form-field appearance="outline">
-            <mat-label>Username</mat-label>
-            <input formControlName="displayName" matInput required="required" />
-            <mat-error *ngIf="displayName?.hasError('whitespace')">
-              No whitespace allowed
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input
-              formControlName="password"
-              type="password"
-              matInput
-              required="required"
-            />
-            <mat-error
-              *ngIf="signInForm.get('password')?.hasError('minlength')"
-            >
-              Pasword too short
-            </mat-error>
-          </mat-form-field>
-          <p>
-            Dont have an account?
-            <span style="cursor: pointer" routerLink="/sign-up">Sign Up</span>
-          </p>
-        </mat-card-content>
-        <mat-card-actions style="justify-content: center">
-          <button
-            style="width: 100%"
-            mat-raised-button
-            color="primary"
-            (click)="onSubmit(signInForm)"
-          >
-            Enter
-          </button>
-        </mat-card-actions>
-      </div>
-    </mat-card>
+    <app-sign-in></app-sign-in>
   </ng-container>
 
   <ng-template #signedIn>
