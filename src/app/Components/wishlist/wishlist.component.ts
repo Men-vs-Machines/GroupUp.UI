@@ -1,21 +1,34 @@
 import { Component, OnInit, SimpleChange } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
-import { map, Observable, tap, take, takeUntil, finalize, switchMap } from 'rxjs';
+import {
+  map,
+  Observable,
+  tap,
+  take,
+  takeUntil,
+  finalize,
+  switchMap,
+} from 'rxjs';
 import { User } from 'src/app/Models/user';
 import { AuthService } from 'src/app/Services/auth.service';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from 'src/app/Utils/destroyable';
 
+interface DisabledForm {
+  index: number,
+  state: boolean
+}
+
 @Component({
   selector: 'app-wishlist',
   templateUrl: './wishlist.component.html',
-  styleUrls: ['./wishlist.component.scss']
+  styleUrls: ['./wishlist.component.scss'],
 })
 export class WishlistComponent extends Destroyable {
   user$: Observable<User>;
   wishListForm = this.fb.group({
-    items: this.fb.array([])
+    items: this.fb.array([]),
   });
 
   wishListSaving = false;
@@ -24,18 +37,29 @@ export class WishlistComponent extends Destroyable {
     return this.wishListForm.controls['items'] as FormArray;
   }
 
-  constructor(private authService: AuthService, private fb: FormBuilder, private dataProvider: DataProviderService, private userService: UserService) {
+  constructor(
+    private fb: FormBuilder,
+    private dataProvider: DataProviderService,
+    private userService: UserService
+  ) {
     super();
-  } 
+  }
 
   ngOnInit(): void {
     this.user$ = this.userService.user$;
-    this.user$.pipe(
-      map(({wishList}) => wishList.map(item => this.fb.control({value: item, disabled: true}))),
-      takeUntil(this.destroy$)
-    )
-    //@ts-ignore
-    .subscribe(data => this.wishListForm.setControl('items', this.fb.array(data)));
+    this.user$
+      .pipe(
+        map(({ wishList }) =>
+          wishList.map((item) =>
+            this.fb.control({ value: item, disabled: true })
+          )
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((data) =>
+        //@ts-ignore
+        this.wishListForm.setControl('items', this.fb.array(data))
+      );
   }
 
   addWishListItem() {
@@ -43,6 +67,7 @@ export class WishlistComponent extends Destroyable {
   }
 
   enableForm(index) {
+    console.log('enable form');
     this.items.controls[index].enable();
   }
 
@@ -56,15 +81,17 @@ export class WishlistComponent extends Destroyable {
 
   saveWishList() {
     this.wishListSaving = true;
-    this.user$.pipe(
-      //@ts-ignore
-      tap(user => user.wishList = this.wishListForm.getRawValue().items),
-      switchMap(user => this.dataProvider.updateUser(user)),
-      finalize(() => this.wishListSaving = false),
-      take(1))
-    .subscribe({
-      next: () => this.items.disable()
-    })
+    this.user$
+      .pipe(
+        //@ts-ignore
+        tap((user) => (user.wishList = this.wishListForm.getRawValue().items)),
+        switchMap((user) => this.dataProvider.updateUser(user)),
+        finalize(() => (this.wishListSaving = false)),
+        take(1)
+      )
+      .subscribe({
+        next: () => this.items.disable()
+      });
   }
 
   trackByFn(index, item) {
