@@ -10,6 +10,8 @@ import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from '../../Utils/destroyable';
 import { User, UserSchema } from './../../Models/user';
 import { SnackbarService } from './../../Services/snackbar.service';
+import { AuthFunctionality } from 'src/app/Models/auth-functionality';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
@@ -20,13 +22,33 @@ export class SignInComponent extends Destroyable implements OnInit {
   signInForm: FormGroup;
   user$: Observable<User>;
   authFn$: (user: User) => Observable<any>;
-  @Input() header = 'Sign In';
+ 
+  authFunctionality: AuthFunctionality = AuthFunctionality.SignIn;  
+
+  private _header = 'Sign In';
+  @Input() set header(value: string | undefined) {
+    this._header = value;
+    if (value.toLowerCase() === 'sign in' || value == null) {
+      this.authFunctionality = AuthFunctionality.SignIn;
+      return;
+    }
+
+    this.authFunctionality = AuthFunctionality.SignUp;
+  };
+
+  get header() {
+    return this._header;
+  }
+
+  get isSignIn() {
+    return this.authFunctionality === AuthFunctionality.SignIn;
+  }
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private userService: UserService,
-    private snackbar: SnackbarService
+    private snackbar: SnackbarService,
+    private router: Router
     ) {
     super();
 
@@ -77,12 +99,13 @@ export class SignInComponent extends Destroyable implements OnInit {
 
         return of(null);
       })
-    ).subscribe();
+    ).subscribe({
+      next: () => this.authFunctionality === AuthFunctionality.SignUp ? this.router.navigate(['/']) : null
+    });
   }
 
   private authFnFactory() {
-    console.log(this.header.toLowerCase());
-    if (this.header.toLowerCase() === 'sign up') {
+    if (this.authFunctionality === AuthFunctionality.SignUp) {
       this.authFn$ = (user: User) => this.authService.createUserWithEmailAndPassword$(user);
     } else {
       this.authFn$ = (user: User) => this.authService.signInWithUsernameAndPassword$(user);

@@ -29,7 +29,7 @@
   </div>
 
   <ng-container *ngIf="!(this.user$ | async); else signedIn">
-    <app-sign-in></app-sign-in>
+    <app-sign-in header="Sign In"></app-sign-in>
   </ng-container>
 
   <ng-template #signedIn>

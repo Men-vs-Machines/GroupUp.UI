@@ -27,7 +27,7 @@
           Pasword too short
         </mat-error>
       </mat-form-field>
-      <p>
+      <p *ngIf="isSignIn">
         Dont have an account?
         <span style="cursor: pointer" routerLink="/sign-up">Sign Up</span>
       </p>
