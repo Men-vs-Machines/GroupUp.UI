@@ -6,7 +6,6 @@ import {
 } from '@angular/forms';
 import { catchError, Observable, of } from 'rxjs';
 import { AuthService } from 'src/app/Services/auth.service';
-import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from '../../Utils/destroyable';
 import { User, UserSchema } from './../../Models/user';
 import { SnackbarService } from './../../Services/snackbar.service';
@@ -23,7 +22,8 @@ export class SignInComponent extends Destroyable implements OnInit {
   user$: Observable<User>;
   authFn$: (user: User) => Observable<any>;
  
-  authFunctionality: AuthFunctionality = AuthFunctionality.SignIn;  
+  authFunctionality: AuthFunctionality = AuthFunctionality.SignIn;
+  errorMessage = '';
 
   private _header = 'Sign In';
   @Input() set header(value: string | undefined) {
@@ -90,7 +90,7 @@ export class SignInComponent extends Destroyable implements OnInit {
     this.authFn$(user).pipe(
       catchError(err => {
         if (err.message.includes('email')) {
-          this.snackbar.open('This username is already taken. Please pick another', 'close', {
+          this.snackbar.open(this.errorMessage, 'close', {
             horizontalPosition: 'center',
             verticalPosition: 'top',
             duration: 5000
@@ -107,8 +107,10 @@ export class SignInComponent extends Destroyable implements OnInit {
   private authFnFactory() {
     if (this.authFunctionality === AuthFunctionality.SignUp) {
       this.authFn$ = (user: User) => this.authService.createUserWithEmailAndPassword$(user);
+      this.errorMessage = 'This user does not exist'
     } else {
       this.authFn$ = (user: User) => this.authService.signInWithUsernameAndPassword$(user);
+      this.errorMessage = 'This username is already taken. Please pick another';
     }
   }
 }
