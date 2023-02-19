@@ -60,8 +60,8 @@ const validateFirebaseIdToken = async (req, res, next) => {
 };
 
 app.use(cors);
-app.use(cookieParser);
-app.use(validateFirebaseIdToken);
+// app.use(cookieParser);
+// app.use(validateFirebaseIdToken);
 
 app.get("/groups", async (req, res) => {
   const snapshot = await admin.firestore().collection("groups").get();
@@ -84,4 +84,39 @@ exports.api = functions.https.onRequest(app);
 
 module.exports.deleteUser = functions.auth.user().onDelete((user) => {
   return admin.firestore().collection("users").doc(user.uid).delete();
+});
+
+app.get("/groups/:id", async (req, res) => {
+  const result = await admin
+    .firestore()
+    .collection("groups")
+    .doc(req.params.id)
+    .get();
+
+  if (result == null) {
+    res.status(204).send();
+  }
+
+  res.status(200).send(JSON.stringify(result.data()));
+});
+
+app.put("/groups", async (req, res) => {
+  const group = req.body;
+
+  const result = await admin
+    .firestore()
+    .collection("groups")
+    .doc(group.id)
+    .set(group, { merge: true });
+
+  res.status(200).send();
+});
+
+app.post("/groups", async (req, res) => {
+  const group = req.body;
+
+  const groupRef = await admin.firestore().collection("groups").add(group);
+  await groupRef.set({ id: groupRef.id }, { merge: true });
+
+  res.status(200).send(groupRef);
 });
