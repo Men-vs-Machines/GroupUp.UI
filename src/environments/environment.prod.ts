@@ -9,5 +9,6 @@ export const environment = {
     messagingSenderId: '763460311312',
     measurementId: 'G-2JB8W1YJMH',
   },
-  production: true
+  production: true,
+  functionsUrl: 'https://us-central1-secretsantatest-4e7fc.cloudfunctions.net/api'
 };

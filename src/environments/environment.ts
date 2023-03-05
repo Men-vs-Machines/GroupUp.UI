@@ -15,7 +15,8 @@ export const environment = {
   },
   production: false,
   GroupUpAPI: 'http://localhost:5000',
-  groupUpBff: 'http://localhost:3000'
+  groupUpBff: 'http://localhost:3000',
+  functionsUrl: 'https://us-central1-secretsantatest-4e7fc.cloudfunctions.net/api'
 };
 
 /*

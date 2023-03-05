@@ -60,8 +60,8 @@ const validateFirebaseIdToken = async (req, res, next) => {
 };
 
 app.use(cors);
-// app.use(cookieParser);
-// app.use(validateFirebaseIdToken);
+app.use(cookieParser);
+app.use(validateFirebaseIdToken);
 
 const groupsColletion = "groups";
 const usersCollection = "users";
