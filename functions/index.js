@@ -3,7 +3,7 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 const express = require("express");
 const cookieParser = require("cookie-parser")();
-const cors = require("cors")({ origin: true });
+const cors = require("cors");
 const app = express();
 
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
@@ -59,9 +59,14 @@ const validateFirebaseIdToken = async (req, res, next) => {
   }
 };
 
-app.use(cors);
+const corsOptions = {
+  origin: "http://localhost:4200",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser);
-app.use(validateFirebaseIdToken);
+// app.use(validateFirebaseIdToken);
 
 const groupsColletion = "groups";
 const usersCollection = "users";
@@ -103,7 +108,7 @@ app.get("/groups/:id", async (req, res) => {
   res.status(200).send(result.data());
 });
 
-app.put("/groups", async (req, res) => {
+app.put("/groups", validateFirebaseIdToken, async (req, res) => {
   const group = req.body;
   const { userIds } = group;
   functions.logger.log("userIds", userIds);
@@ -123,7 +128,7 @@ app.put("/groups", async (req, res) => {
   res.status(200).send(groupRef);
 });
 
-app.post("/groups", async (req, res) => {
+app.post("/groups", validateFirebaseIdToken, async (req, res) => {
   const group = req.body;
   const result = await create(group, groupsColletion);
 
@@ -146,12 +151,16 @@ app.get("/users/:id", async (req, res) => {
 
 app.post("/users", async (req, res) => {
   const user = req.body;
-  const result = await create(user, usersCollection);
+  const result = await admin
+    .firestore()
+    .collection("users")
+    .doc(user.id)
+    .set(user);
 
   res.status(200).send(result);
 });
 
-app.put("/users", async (req, res) => {
+app.put("/users", validateFirebaseIdToken, async (req, res) => {
   const user = req.body;
   await updateUser(user);
 

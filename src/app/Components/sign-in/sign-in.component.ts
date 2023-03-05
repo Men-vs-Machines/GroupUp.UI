@@ -100,17 +100,17 @@ export class SignInComponent extends Destroyable implements OnInit {
         return of(null);
       })
     ).subscribe({
-      next: () => this.authFunctionality === AuthFunctionality.SignUp ? this.router.navigate(['/']) : null
+      // next: () => this.authFunctionality === AuthFunctionality.SignUp ? this.router.navigate(['/']) : null
     });
   }
 
   private authFnFactory() {
     if (this.authFunctionality === AuthFunctionality.SignUp) {
       this.authFn$ = (user: User) => this.authService.createUserWithEmailAndPassword$(user);
-      this.errorMessage = 'This user does not exist'
+      this.errorMessage = 'This username is already taken. Please pick another'
     } else {
       this.authFn$ = (user: User) => this.authService.signInWithUsernameAndPassword$(user);
-      this.errorMessage = 'This username is already taken. Please pick another';
+      this.errorMessage = 'This user does not exist';
     }
   }
 }
