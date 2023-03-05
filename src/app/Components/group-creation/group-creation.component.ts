@@ -75,7 +75,6 @@ export class GroupCreationComponent extends Utility implements OnInit {
     this.dataProviderService
       .createGroup(newGroup)
       .pipe(
-        tap(data => console.log('in group create obs', data)),
         filter((id) => !!id),
         takeUntil(this.destroy$),
         tap(() => this.userService.fetchUser())

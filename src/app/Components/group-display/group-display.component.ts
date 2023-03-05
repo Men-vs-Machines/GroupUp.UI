@@ -119,6 +119,10 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     combineLatest([this.userService.user$, this.group$, this.users$]).pipe(
       take(1),
       map(([user, group, users]) => {
+        if (!user.partners) {
+          user.partners = [];
+        }
+
         const otherUsers = users.filter((u) => u.id !== user.id);
         const eligiblePartners = otherUsers.filter((user) => !user.partners 
         || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id));
@@ -166,12 +170,9 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   private updateUserAndGroup(): Observable<[Object, Object]> {
     return combineLatest([this.userService.user$, this.group$]).pipe(
-      tap(data => console.log(data)),
-      map(([user, group]) => {
-        console.log(user, group)
-        return this.newUserGroup(user, group);
-      }),
-      tap(data => console.log(data)),
+      take(1),
+      map(([user, group]) => this.newUserGroup(user, group)),
+      tap(({user, }) => this.userService.setUser = user),
       mergeMap(({ user, group }) =>
         forkJoin([
           this.dataProviderService.updateUser(user),
@@ -191,10 +192,8 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   }
 
   private newUserGroup(user: User, group: Group): { user: User; group: Group } {
-    const dedupedGroups = [...new Set([...user?.groups, group?.id])];
-    const dedupedUserIds = [...new Set([...group?.userIds, user?.id])];
-
-    console.log(dedupedGroups, dedupedUserIds);
+    const dedupedGroups = [...new Set([...user.groups, group.id])];
+    const dedupedUserIds = [...new Set([...group.userIds, user.id])];
 
     return {
       user: { ...user, groups: dedupedGroups },

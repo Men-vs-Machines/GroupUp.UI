@@ -89,7 +89,7 @@ export class SignInComponent extends Destroyable implements OnInit {
 
     this.authFn$(user).pipe(
       catchError(err => {
-        if (err.message.includes('email')) {
+        if (err.message.includes('email') || err.message.includes('user')) {
           this.snackbar.open(this.errorMessage, 'close', {
             horizontalPosition: 'center',
             verticalPosition: 'top',
