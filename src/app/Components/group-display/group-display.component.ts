@@ -166,7 +166,12 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   private updateUserAndGroup(): Observable<[Object, Object]> {
     return combineLatest([this.userService.user$, this.group$]).pipe(
-      map(([user, group]) => this.newUserGroup(user, group)),
+      tap(data => console.log(data)),
+      map(([user, group]) => {
+        console.log(user, group)
+        return this.newUserGroup(user, group);
+      }),
+      tap(data => console.log(data)),
       mergeMap(({ user, group }) =>
         forkJoin([
           this.dataProviderService.updateUser(user),
@@ -186,8 +191,10 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   }
 
   private newUserGroup(user: User, group: Group): { user: User; group: Group } {
-    const dedupedGroups = [...new Set([...user.groups, group.id])];
-    const dedupedUserIds = [...new Set([...group.userIds, user.id])];
+    const dedupedGroups = [...new Set([...user?.groups, group?.id])];
+    const dedupedUserIds = [...new Set([...group?.userIds, user?.id])];
+
+    console.log(dedupedGroups, dedupedUserIds);
 
     return {
       user: { ...user, groups: dedupedGroups },

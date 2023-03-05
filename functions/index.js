@@ -66,7 +66,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser);
-// app.use(validateFirebaseIdToken);
 
 const groupsColletion = "groups";
 const usersCollection = "users";
@@ -108,7 +107,7 @@ app.get("/groups/:id", async (req, res) => {
   res.status(200).send(result.data());
 });
 
-app.put("/groups", validateFirebaseIdToken, async (req, res) => {
+app.post("/groups", async (req, res) => {
   const group = req.body;
   const { userIds } = group;
   functions.logger.log("userIds", userIds);
@@ -120,19 +119,16 @@ app.put("/groups", validateFirebaseIdToken, async (req, res) => {
   const users = await Promise.all(userPromises);
   const updatedUserPromises = users.map((user) => {
     const userData = user.data();
+    if (!userData.groups) {
+      userData.groups = [];
+    }
+
     userData.groups.push(groupRef);
     updateUser(userData);
   });
 
   await Promise.all(updatedUserPromises);
-  res.status(200).send(groupRef);
-});
-
-app.post("/groups", validateFirebaseIdToken, async (req, res) => {
-  const group = req.body;
-  const result = await create(group, groupsColletion);
-
-  res.status(200).send(result);
+  res.status(200).send(JSON.stringify(groupRef));
 });
 
 app.get("/users/:id", async (req, res) => {
@@ -165,6 +161,22 @@ app.put("/users", validateFirebaseIdToken, async (req, res) => {
   await updateUser(user);
 
   res.status(200).send();
+});
+
+app.put("/groups", validateFirebaseIdToken, async (req, res) => {
+  const group = req.body;
+
+  try {
+    await admin
+      .firestore()
+      .collection(groupsColletion)
+      .doc(group.id)
+      .set(group, { merge: true });
+
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 const create = async (value, collection) => {
