@@ -14,6 +14,7 @@ import {
   from,
   toArray,
   BehaviorSubject,
+  concat,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -61,6 +62,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     // TODO: Refactor to use vm for entire template
     this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
       filter(([user]) => !!user),
+      tap(data => console.log(data)),
       map(([user, users]) => {
         return { userInGroup: !!users.find((u) => u.id === user.id), user };
       })
@@ -109,7 +111,7 @@ export class GroupDisplayComponent extends Utility implements OnInit {
   }
 
   joinGroup() {
-    forkJoin([this.addUserToUsers(), this.updateUserAndGroup()])
+    concat(this.addUserToUsers(), this.updateUserAndGroup())
       .pipe(take(1))
       .subscribe();
   }
