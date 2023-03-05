@@ -63,6 +63,9 @@ app.use(cors);
 // app.use(cookieParser);
 // app.use(validateFirebaseIdToken);
 
+const groupsColletion = "groups";
+const usersCollection = "users";
+
 app.get("/groups", async (req, res) => {
   const snapshot = await admin.firestore().collection("groups").get();
 
@@ -97,26 +100,74 @@ app.get("/groups/:id", async (req, res) => {
     res.status(204).send();
   }
 
-  res.status(200).send(JSON.stringify(result.data()));
+  res.status(200).send(result.data());
 });
 
 app.put("/groups", async (req, res) => {
   const group = req.body;
+  const { userIds } = group;
+  functions.logger.log("userIds", userIds);
+  const groupRef = await create(group, groupsColletion);
+  const userPromises = userIds.map(async (id) => {
+    return await admin.firestore().collection("users").doc(id).get();
+  });
 
-  const result = await admin
-    .firestore()
-    .collection("groups")
-    .doc(group.id)
-    .set(group, { merge: true });
+  const users = await Promise.all(userPromises);
+  const updatedUserPromises = users.map((user) => {
+    const userData = user.data();
+    userData.groups.push(groupRef);
+    updateUser(userData);
+  });
 
-  res.status(200).send();
+  await Promise.all(updatedUserPromises);
+  res.status(200).send(groupRef);
 });
 
 app.post("/groups", async (req, res) => {
   const group = req.body;
+  const result = await create(group, groupsColletion);
 
-  const groupRef = await admin.firestore().collection("groups").add(group);
-  await groupRef.set({ id: groupRef.id }, { merge: true });
-
-  res.status(200).send(groupRef);
+  res.status(200).send(result);
 });
+
+app.get("/users/:id", async (req, res) => {
+  const result = await admin
+    .firestore()
+    .collection("users")
+    .doc(req.params.id)
+    .get();
+
+  if (!result.exists) {
+    res.status(404).send();
+  }
+
+  res.status(200).send(result.data());
+});
+
+app.post("/users", async (req, res) => {
+  const user = req.body;
+  const result = await create(user, usersCollection);
+
+  res.status(200).send(result);
+});
+
+app.put("/users", async (req, res) => {
+  const user = req.body;
+  await updateUser(user);
+
+  res.status(200).send();
+});
+
+const create = async (value, collection) => {
+  const valueRef = await admin.firestore().collection(collection).add(value);
+  await valueRef.set({ id: valueRef.id }, { merge: true });
+  return valueRef.id;
+};
+
+const updateUser = async (user) => {
+  return await admin
+    .firestore()
+    .collection("users")
+    .doc(user.id)
+    .set(user, { merge: true });
+};
