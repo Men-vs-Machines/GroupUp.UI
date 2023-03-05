@@ -4,7 +4,7 @@ import {
   FormBuilder,
   FormGroup, Validators
 } from '@angular/forms';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 import { AuthService } from 'src/app/Services/auth.service';
 import { Destroyable } from '../../Utils/destroyable';
 import { User, UserSchema } from './../../Models/user';
@@ -97,10 +97,15 @@ export class SignInComponent extends Destroyable implements OnInit {
           });
         }
 
-        return of(null);
+        return throwError(() => {
+          const error: any = new Error('Unable to validate user');
+          error.timestamp = Date.now();
+          return error;
+        });
       })
     ).subscribe({
-      // next: () => this.authFunctionality === AuthFunctionality.SignUp ? this.router.navigate(['/']) : null
+      next: () => this.authFunctionality === AuthFunctionality.SignUp ? this.router.navigate(['/']) : null,
+      error: (err) => console.error(err)
     });
   }
 
