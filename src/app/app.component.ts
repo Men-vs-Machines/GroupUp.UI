@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import { connect } from '@rxjs-insights/devtools/connect';
+import { SpinnerService } from './Services/spinner.service';
 
 
 @Component({

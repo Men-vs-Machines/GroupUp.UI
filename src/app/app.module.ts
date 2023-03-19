@@ -33,6 +33,8 @@ import { provideAuth,getAuth } from '@angular/fire/auth';
 import { provideFirestore,getFirestore } from '@angular/fire/firestore';
 import { MatRippleModule } from '@angular/material/core';
 import { SignUpComponent } from './Components/sign-up/sign-up.component';
+import {MatDialogModule} from '@angular/material/dialog'; 
+import { SpinnnerComponent } from './Components/spinnner/spinnner.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +49,7 @@ import { SignUpComponent } from './Components/sign-up/sign-up.component';
     SignInComponent,
     GroupListComponent,
     SignUpComponent,
+    SpinnnerComponent
   ],
     imports: [
         BrowserModule,
@@ -68,6 +71,7 @@ import { SignUpComponent } from './Components/sign-up/sign-up.component';
         MatListModule,
         MatProgressBarModule,
         MatRippleModule,
+        MatDialogModule,
         provideFirebaseApp(() => initializeApp(environment.firebase)),
         provideAuth(() => getAuth()),
         provideFirestore(() => getFirestore()),

@@ -21,16 +21,14 @@ import {
   repeatWhen,
   retryWhen,
   defer,
+  finalize,
 } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import Firebase from 'firebase/compat';
 import firebaseUser = Firebase.User;
 import { User } from '../Models/user';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
-import { ReplaySubject } from 'rxjs';
 import { UserService } from './user.service';
-import { catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

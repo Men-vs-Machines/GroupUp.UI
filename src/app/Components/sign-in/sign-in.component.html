@@ -7,6 +7,10 @@
 
   <div [formGroup]="signInForm">
     <mat-card-content style="display: grid; grid-auto-columns: 1fr">
+      <p *ngIf="!isSignIn">
+        Please take not of your username and password as there is no way to
+        recover an account.
+      </p>
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
         <input formControlName="displayName" matInput required="required" />
