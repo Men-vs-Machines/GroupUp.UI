@@ -14,10 +14,12 @@ import {
   of,
   defer,
   mergeMap,
+  tap,
 } from 'rxjs';
 import { User } from 'src/app/Models/user';
 import { Destroyable } from 'src/app/Utils/destroyable';
 import { DataProviderService } from './data-provider.service';
+import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,11 +31,13 @@ export class UserService extends Destroyable {
 
   set setUser(user: User) {
     this.userSub.next(user);
+    this.spinnerService.stop();
   }
 
   constructor(
     private dataProviderService: DataProviderService,
-    private af: AngularFireAuth
+    private af: AngularFireAuth,
+    private spinnerService: SpinnerService
   ) {
     super();
 

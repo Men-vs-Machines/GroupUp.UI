@@ -21,14 +21,15 @@ import {
   repeatWhen,
   retryWhen,
   defer,
-  finalize,
 } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import Firebase from 'firebase/compat';
 import firebaseUser = Firebase.User;
 import { User } from '../Models/user';
 import { DataProviderService } from 'src/app/Services/data-provider.service';
 import { UserService } from './user.service';
+import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root',
@@ -42,11 +43,15 @@ export class AuthService {
   constructor(
     private angularAuth: AngularFireAuth,
     private dataProviderService: DataProviderService,
-    private userService: UserService
+    private userService: UserService,
+    private spinnerService: SpinnerService
   ) {
     this.angularAuth.authState
       .pipe(
-        tap((user) => console.log('auth state changed', user)),
+        tap((user) => {
+          this.spinnerService.start();
+          console.log('auth state changed', user);
+        }),
         switchMap((user: Firebase.User | null) =>
           defer(() =>
             !!user ? this.onUserSignIn$(user) : this.onUserSignOut$()
@@ -117,6 +122,7 @@ export class AuthService {
         this._token$.next(null);
         this.userService.setUser = null;
         localStorage.removeItem('jwt');
+        this.spinnerService.stop();
       }),
       switchMap(() => from(this.angularAuth.signOut()))
     );
@@ -136,6 +142,7 @@ export class AuthService {
         this.userService.setUser = user;
         this._token$.next(token);
         localStorage.setItem('jwt', token);
+        this.spinnerService.stop();
       })
     );
   }
