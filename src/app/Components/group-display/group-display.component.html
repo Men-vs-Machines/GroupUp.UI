@@ -1,5 +1,5 @@
 <ng-container *ngIf="group$ | async as group">
-  <h1 class="mat-display-2" style="color: whitesmoke">
+  <h1 class="mat-display-2" style="color: whitesmoke; margin-left: 1rem">
     Welcome to {{ group.name }}!
   </h1>
   <ng-container *ngIf="users$ | async as users">
