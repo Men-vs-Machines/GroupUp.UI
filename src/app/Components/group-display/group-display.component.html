@@ -6,7 +6,7 @@
     <div class="cards">
       <ng-container *ngFor="let user of users">
         <!-- TODO: Refactor card to shared component -->
-        <mat-card class="card">
+        <mat-card class="card" style="height: fit-content">
           <mat-card-header>
             <mat-card-title>{{ user.displayName }}</mat-card-title>
             <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
@@ -17,7 +17,7 @@
                 Partner: {{ (getPartner$(user) | async)?.displayName }}
               </h2>
             </ng-container>
-            <mat-list>
+            <mat-list *ngIf="user.wishList.length">
               <mat-list-item>
                 <span matListItemTitle>Wishlist items</span>
               </mat-list-item>

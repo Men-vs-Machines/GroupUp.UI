@@ -13,7 +13,13 @@
               trackBy: trackByFn
             "
           >
-            <div>
+            <div
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: baseline;
+              "
+            >
               <mat-form-field>
                 <mat-label>Wishlist item</mat-label>
                 <span>
@@ -25,7 +31,7 @@
                   <span>{{ item.value.value | json }}</span>
                 </span>
               </mat-form-field>
-              <span style="cursor: pointer">
+              <span style="cursor: pointer; display: flex">
                 <ng-container *ngIf="item.disabled; else disable">
                   <mat-icon (click)="enableForm(i)">lock_open</mat-icon>
                 </ng-container>

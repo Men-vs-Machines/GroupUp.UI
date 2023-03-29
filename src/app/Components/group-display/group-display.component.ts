@@ -15,6 +15,9 @@ import {
   toArray,
   BehaviorSubject,
   concat,
+  switchMap,
+  distinctUntilChanged,
+  takeUntil,
 } from 'rxjs';
 import { Group } from '../../Models/group';
 import { Utility } from 'src/app/Utils/utility';
@@ -23,6 +26,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { User } from 'src/app/Models/user';
 import { UserService } from 'src/app/Services/user.service';
 import { sort } from './../../Utils/rxjs-operators/sort';
+import { inspect } from '@rxjs-insights/devtools';
 
 @Component({
   selector: 'app-group-display',
@@ -50,32 +54,53 @@ export class GroupDisplayComponent extends Utility implements OnInit {
 
   ngOnInit(): void {
     // TODO: Refactor to use streams
+    inspect(this.userService.user$);
+
     const groupId = this.activatedRoute.snapshot.params['id'];
 
     this.dataProviderService
       .getGroup(groupId)
       .pipe(shareReplay(1))
       .subscribe({
-        next: (group) => this.groupSub.next(group)
+        next: (group) => this.groupSub.next(group),
       });
 
     // TODO: Refactor to use vm for entire template
     this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
       filter(([user]) => !!user),
-      tap(data => console.log(data)),
+      tap((data) => console.log(data)),
       map(([user, users]) => {
         return { userInGroup: !!users.find((u) => u.id === user.id), user };
       })
     );
 
-    combineLatest([this.userService.user$, this.group$.pipe(filter(g => !!g))])
+    this.group$
       .pipe(
-        filter(([user, _]) => !!user),
-        mergeMap(([user, { userIds }]) =>
-          this.checkIfShouldGetUser(user, userIds)
+        filter((g) => !!g),
+        mergeMap(({ userIds }) =>
+          from(userIds).pipe(
+            mergeMap((id) => this.dataProviderService.getUser(id)),
+            toArray()
+          )
         ),
+        takeUntil(this.destroy$)
       )
       .subscribe(this.usersSub);
+
+    // combineLatest([
+    //   this.userService.user$,
+    //   this.group$.pipe(filter((g) => !!g)),
+    // ])
+    //   .pipe(
+    //     tap((data) => console.log('in the user check combineLatest', data)),
+    //     filter(([user, _]) => !!user),
+    //     mergeMap(([user, { userIds }]) =>
+    //       this.checkIfShouldGetUser(user, userIds)
+    //     )
+    //   )
+    //   .subscribe({
+    //     next: (users) => this.usersSub.next(users),
+    //   });
   }
 
   hasPartner$(viewUser: User): Observable<boolean> {
@@ -83,98 +108,143 @@ export class GroupDisplayComponent extends Utility implements OnInit {
       filter(([user, _]) => !!user && user.id === viewUser.id),
       map(([user, group]) => {
         if (!!user && !!user.partners && user.partners.length > 0) {
-          return user.partners.some(p => p.groupId === group.id);
+          return user.partners.some((p) => p.groupId === group.id);
         }
         return false;
-      }));
+      })
+    );
   }
 
   getPartner$(currentUser: User): Observable<User> {
-    return combineLatest([this.userService.user$, this.users$, this.group$]).pipe(
-      filter(([user, , ]) => !!user && user.id === currentUser.id),
+    return combineLatest([
+      this.userService.user$,
+      this.users$,
+      this.group$,
+    ]).pipe(
+      filter(([user, ,]) => !!user && user.id === currentUser.id),
       map(([user, users, group]) => {
-        const partner = user.partners.find(p => p.groupId === group.id);
-        return users.find(u => u.id === partner.userId);
-      }));
+        const partner = user.partners.find((p) => p.groupId === group.id);
+        return users.find((u) => u.id === partner.userId);
+      })
+    );
   }
 
   shouldShowPartnerButton$(displayUser: User): Observable<boolean> {
-    return combineLatest([this.userService.user$, this.group$, this.users$]).pipe(
+    return combineLatest([
+      this.userService.user$,
+      this.group$,
+      this.users$,
+    ]).pipe(
       map(
         ([user, group, users]) =>
-          !!user
-          && user.id === displayUser.id
-          && this.doUsersHavePartners(user, users, group)
-          && (!user.partners || !user.partners.find((p) => p.groupId === group.id))
+          !!user &&
+          user.id === displayUser.id &&
+          this.doUsersHavePartners(user, users, group) &&
+          (!user.partners || !user.partners.find((p) => p.groupId === group.id))
       )
     );
   }
 
   joinGroup() {
-    concat(this.addUserToUsers(), this.updateUserAndGroup())
-      .pipe(take(1))
+    this.addUserToUsers()
+      .pipe(
+        take(1),
+        switchMap(() => this.updateUserAndGroup())
+      )
       .subscribe();
   }
 
   // TODO: Make this readable
   findPartner() {
-    combineLatest([this.userService.user$, this.group$, this.users$]).pipe(
-      take(1),
-      map(([user, group, users]) => {
-        if (!user.partners) {
-          user.partners = [];
-        }
-
-        const otherUsers = users.filter((u) => u.id !== user.id);
-        const eligiblePartners = otherUsers.filter((user) => !user.partners 
-        || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id));
-       
-        if (eligiblePartners.length === 0) {
-          throw new Error('No eligible partners');
-        }
-
-        // set partner on both users
-        const partner = eligiblePartners[Math.floor(Math.random() * eligiblePartners.length)];
-        const partnerUser = { ...partner, partners: [...partner.partners, { groupId: group.id, userId: user.id }] };
-        const userWithPartner = { ...user, partners: [...user.partners, { groupId: group.id, userId: partner.id }] };
-        return { userWithPartner, partnerUser, users };
-      }),
-      mergeMap(({userWithPartner, partnerUser, users}) => forkJoin([
-        this.dataProviderService.updateUser(userWithPartner),
-        this.dataProviderService.updateUser(partnerUser),
-        of({users: users, partner: partnerUser, newUser: userWithPartner})
-      ])),
-    ).subscribe({
-      next: ([, , updatedUsers]) => {
-        const {users, partner, newUser} = updatedUsers;
-        // find and replace the users in the users array with the user and also the user with the partner
-        const updatedUsersArray = users.reduce((acc, user) => {
-          if (user.id === newUser.id) {
-            acc.push(newUser);
-            return acc;
+    combineLatest([this.userService.user$, this.group$, this.users$])
+      .pipe(
+        take(1),
+        map(([user, group, users]) => {
+          if (!user.partners) {
+            user.partners = [];
           }
 
-          if (user.id === partner.id) {
-            acc.push(partner);
-            return acc;
-          }
-          
-          acc.push(user);
-          return acc;
-        }, []);
+          const otherUsers = users.filter((u) => u.id !== user.id);
+          const eligiblePartners = otherUsers.filter(
+            (user) =>
+              !user.partners ||
+              user.partners.every(
+                (partner) =>
+                  partner.groupId !== group.id && partner.userId !== user.id
+              )
+          );
 
-        this.groupSub.next({ ...this.groupSub.value, userIds: [...this.groupSub.value.userIds, newUser.id] });
-        this.userService.setUser = newUser;
-        this.usersSub.next(updatedUsersArray);
-      }
-    });
+          if (eligiblePartners.length === 0) {
+            throw new Error('No eligible partners');
+          }
+
+          // set partner on both users
+          const partner =
+            eligiblePartners[
+              Math.floor(Math.random() * eligiblePartners.length)
+            ];
+          const partnerUser = {
+            ...partner,
+            partners: [
+              ...partner.partners,
+              { groupId: group.id, userId: user.id },
+            ],
+          };
+          const userWithPartner = {
+            ...user,
+            partners: [
+              ...user.partners,
+              { groupId: group.id, userId: partner.id },
+            ],
+          };
+          return { userWithPartner, partnerUser, users };
+        }),
+        mergeMap(({ userWithPartner, partnerUser, users }) =>
+          forkJoin([
+            this.dataProviderService.updateUser(userWithPartner),
+            this.dataProviderService.updateUser(partnerUser),
+            of({
+              users: users,
+              partner: partnerUser,
+              newUser: userWithPartner,
+            }),
+          ])
+        )
+      )
+      .subscribe({
+        next: ([, , updatedUsers]) => {
+          const { users, partner, newUser } = updatedUsers;
+          // find and replace the users in the users array with the user and also the user with the partner
+          const updatedUsersArray = users.reduce((acc, user) => {
+            if (user.id === newUser.id) {
+              acc.push(newUser);
+              return acc;
+            }
+
+            if (user.id === partner.id) {
+              acc.push(partner);
+              return acc;
+            }
+
+            acc.push(user);
+            return acc;
+          }, []);
+
+          this.groupSub.next({
+            ...this.groupSub.value,
+            userIds: [...this.groupSub.value.userIds, newUser.id],
+          });
+          this.userService.setUser = newUser;
+          this.usersSub.next(updatedUsersArray);
+        },
+      });
   }
 
-  private updateUserAndGroup(): Observable<[Object, Object]> {
+  private updateUserAndGroup() {
     return combineLatest([this.userService.user$, this.group$]).pipe(
       take(1),
       map(([user, group]) => this.newUserGroup(user, group)),
-      tap(({user, }) => this.userService.setUser = user),
+      tap(({ user }) => (this.userService.setUser = user)),
       mergeMap(({ user, group }) =>
         forkJoin([
           this.dataProviderService.updateUser(user),
@@ -215,25 +285,37 @@ export class GroupDisplayComponent extends Utility implements OnInit {
               mergeMap((id) => this.userService.getUser(id)),
               toArray(),
               sort('displayName'),
-              map(users => users.reduce((acc, currUser) => {
-                if (currUser.id === user.id) {
-                  acc.unshift(currUser);
-                  return acc;
-                }
+              map((users) =>
+                users.reduce((acc, currUser) => {
+                  if (currUser.id === user.id) {
+                    acc.unshift(currUser);
+                    return acc;
+                  }
 
-                acc.push(currUser);
-                return acc;
-              }, []))
+                  acc.push(currUser);
+                  return acc;
+                }, [])
+              )
             )
           : of([user])
       )
     );
   }
 
-  private doUsersHavePartners(user: User, users: User[], group: Group): boolean {
+  private doUsersHavePartners(
+    user: User,
+    users: User[],
+    group: Group
+  ): boolean {
     const otherUsers = users.filter((u) => u.id !== user.id);
-    const eligiblePartners = otherUsers.filter((user) => !user.partners 
-      || user.partners.every((partner) => partner.groupId !== group.id && partner.userId !== user.id)); 
+    const eligiblePartners = otherUsers.filter(
+      (user) =>
+        !user.partners ||
+        user.partners.every(
+          (partner) =>
+            partner.groupId !== group.id && partner.userId !== user.id
+        )
+    );
     // Check the number of other users in the group that have partners in this group, if it's even, then we can show the button
     return eligiblePartners.length > 0;
   }
