@@ -22,8 +22,13 @@
   margin: 0 1rem;
 }
 
+@media screen and (min-width: 600px) {
+  .wishlist-card {
+    max-width: 40vw;
+  }
+}
+
 .wishlist-card {
-  max-width: 40vw;
   min-width: 5vw;
 
   .mat-card-header,
