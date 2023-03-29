@@ -37,7 +37,7 @@ $container-margin: 2rem;
   .home-container {
     flex-direction: column;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     ::ng-deep > * {
       margin: 1rem;
       flex-grow: 1;
@@ -49,7 +49,7 @@ $container-margin: 2rem;
   .home-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
     ::ng-deep > * {
       margin: $container-margin;
       flex-grow: 1;
