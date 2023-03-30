@@ -68,7 +68,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
     // TODO: Refactor to use vm for entire template
     this.vm$ = combineLatest([this.userService.user$, this.users$]).pipe(
       filter(([user]) => !!user),
-      tap((data) => console.log(data)),
       map(([user, users]) => {
         return { userInGroup: !!users.find((u) => u.id === user.id), user };
       })
@@ -86,21 +85,6 @@ export class GroupDisplayComponent extends Utility implements OnInit {
         takeUntil(this.destroy$)
       )
       .subscribe(this.usersSub);
-
-    // combineLatest([
-    //   this.userService.user$,
-    //   this.group$.pipe(filter((g) => !!g)),
-    // ])
-    //   .pipe(
-    //     tap((data) => console.log('in the user check combineLatest', data)),
-    //     filter(([user, _]) => !!user),
-    //     mergeMap(([user, { userIds }]) =>
-    //       this.checkIfShouldGetUser(user, userIds)
-    //     )
-    //   )
-    //   .subscribe({
-    //     next: (users) => this.usersSub.next(users),
-    //   });
   }
 
   hasPartner$(viewUser: User): Observable<boolean> {

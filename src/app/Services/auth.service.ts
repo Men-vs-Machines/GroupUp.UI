@@ -46,7 +46,6 @@ export class AuthService {
       .pipe(
         tap((user) => {
           this.spinnerService.start();
-          console.log('auth state changed', user);
         }),
         switchMap((user: Firebase.User | null) =>
           defer(() =>

@@ -16,8 +16,8 @@ import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from 'src/app/Utils/destroyable';
 
 interface DisabledForm {
-  index: number,
-  state: boolean
+  index: number;
+  state: boolean;
 }
 
 @Component({
@@ -67,7 +67,6 @@ export class WishlistComponent extends Destroyable {
   }
 
   enableForm(index) {
-    console.log('enable form');
     this.items.controls[index].enable();
   }
 
@@ -90,7 +89,7 @@ export class WishlistComponent extends Destroyable {
         take(1)
       )
       .subscribe({
-        next: () => this.items.disable()
+        next: () => this.items.disable(),
       });
   }
 

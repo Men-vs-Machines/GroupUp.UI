@@ -1,12 +1,10 @@
 import {
   BreakpointObserver,
   Breakpoints,
-  BreakpointState
+  BreakpointState,
 } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
-import {
-  FormGroup,
-} from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { catchError, debounceTime, fromEvent, Observable, of } from 'rxjs';
 import { UserService } from 'src/app/Services/user.service';
 import { Destroyable } from '../../Utils/destroyable';
@@ -24,22 +22,19 @@ export class HomeComponent extends Destroyable implements OnInit {
 
   constructor(
     private breakPoints: BreakpointObserver,
-    private userService: UserService,
-    ) {
+    private userService: UserService
+  ) {
     super();
   }
 
   get displayName() {
-    return this.signInForm.get('displayName')
+    return this.signInForm.get('displayName');
   }
 
   ngOnInit(): void {
     fromEvent(window, 'resize')
       .pipe(debounceTime(100))
-      .subscribe((evt: any) => {
-        console.log(evt.target.innerWidth);
-        // this.mediaBreakpoint$.next(evt.target.innerWidth);
-      });
+      .subscribe((evt: any) => {});
 
     this.user$ = this.userService.user$;
 
