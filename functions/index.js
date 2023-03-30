@@ -60,7 +60,7 @@ const validateFirebaseIdToken = async (req, res, next) => {
 };
 
 const corsOptions = {
-  origin: "https://creative-puffpuff-960831.netlify.app",
+  origin: "https://group-us-up.netlify.app",
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
